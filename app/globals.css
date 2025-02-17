@@ -19,3 +19,7 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@theme {
+  --color-base-green: #2B3F2F;
+}

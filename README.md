@@ -10,4 +10,4 @@ As part of my DevOps journey, I want to get GitHub actions setup for this site, 
 
 ## Design
 
-Using Khroma[khroma.co], I was able to get some colour schemes I liked. From there, I have used Figma to mock up a design that is pleasing to me. I am sure it will further develop over time.
+Using [Khroma](khroma.co), I was able to get some colour schemes I liked. From there, I have used Figma to mock up a design that is pleasing to me. I am sure it will further develop over time.
