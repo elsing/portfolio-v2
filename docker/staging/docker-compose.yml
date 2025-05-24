@@ -1,0 +1,15 @@
+services:
+  portfolio-v2-staging:
+    container_name: portfolio-v2-staging
+    # expose:
+    #   - 3000:3000
+    image: portfolio-v2-staging:latest
+    networks:
+      traefik_proxy:
+        aliases:
+          - portfolio-v2-staging
+    restart: unless-stopped
+
+networks:
+  traefik_proxy:
+    external: true
