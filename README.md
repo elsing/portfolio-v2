@@ -1,4 +1,4 @@
-# Portfilio Site
+# Portfolio Site
 
 Created to replace my older portfolio site.
 
