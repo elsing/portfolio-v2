@@ -14,7 +14,6 @@ export default function TypewriterName() {
             typeSpeed={180}
             delaySpeed={10000}
             loop
-            
         />
     </div>
   );
