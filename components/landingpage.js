@@ -11,9 +11,9 @@ export default function LandingPage() {
         <h2 className="md:text-2xl text-[#52F7B0] pt-[16px] text-base flex">IT Engineer 🛠️ | DevOps Enthusiast 🤖 | Motorbiker 🏍</h2>
         <h2 className="md:text-xl text-[#F9A11E] pt-[32px] text-base">
             connect with me -&gt;
-            <Link href="mailto:elliot@singer.systems" className=""> email |</Link>
-            <Link href="https://linkedin.com/in/elliotsinger" className=""> linkedin </Link>
-            <Link href="https://github.com/elsing" className="text-xl">| github</Link>
+            <Link href="mailto:elliot@singer.systems"> email |</Link>
+            <Link href="https://linkedin.com/in/elliotsinger"> linkedin </Link>
+            <Link href="https://github.com/elsing">| github</Link>
         </h2>
     </ div> 
   );
