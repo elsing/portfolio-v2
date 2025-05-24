@@ -13,7 +13,7 @@ export default function LandingPage() {
             connect with me -&gt;
             <Link href="mailto:elliot@singer.systems" className=""> email |</Link>
             <Link href="https://linkedin.com/in/elliotsinger" className=""> linkedin </Link>
-            {/* <Link href="https://github.com/elsing" className="text-xl">| github</Link> */}
+            <Link href="https://github.com/elsing" className="text-xl">| github</Link>
         </h2>
     </ div> 
   );
