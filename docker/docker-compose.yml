@@ -1,0 +1,15 @@
+services:
+  portfolio-v2-prod:
+    container_name: portfolio-v2-prod
+    # expose:
+    #   - 3000:3000
+    image: portfolio-v2-prod:latest
+    networks:
+      traefik_proxy:
+        aliases:
+          - portfolio-v2-prod
+    restart: unless-stopped
+
+networks:
+  traefik_proxy:
+    external: true

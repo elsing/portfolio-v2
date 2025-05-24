@@ -1,0 +1,37 @@
+
+name: "Portoflio V2 - Production Deployment"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-repo:
+    name: "Deploy repo into production"
+    runs-on: [docker, self-hosted]
+    # container:
+    #   volumes:
+    #     - /opt/portfolio-v2/repo:/prod-dir
+    # defaults:
+    #   run:
+    #     shell: bash
+    #     # Enter compose files folder
+    #     working-directory: docker/
+
+    steps:
+      # Download repo
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Build the app and make a Docker image of it
+      - name: Build Docker image
+        run: docker build -t portfolio-v2-prod:latest -f docker/Dockerfile .
+
+      # If already up, take it down
+      - name: Stop and remove existing container
+        run: docker compose -f docker/docker-compose.yml down || true
+
+      # Start the app once again
+      - name: Start container with Docker Compose
+        run: docker compose -f docker/docker-compose.yml up -d
