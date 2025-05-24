@@ -5,19 +5,16 @@ on:
   push:
     branches:
       - main
+    # Only run on changes to the relevant code
+    paths:
+      - app
+      - components
+      - docker
 
 jobs:
   deploy-repo:
     name: "Deploy repo into production"
     runs-on: [docker, self-hosted]
-    # container:
-    #   volumes:
-    #     - /opt/portfolio-v2/repo:/prod-dir
-    # defaults:
-    #   run:
-    #     shell: bash
-    #     # Enter compose files folder
-    #     working-directory: docker/
 
     steps:
       # Download repo
