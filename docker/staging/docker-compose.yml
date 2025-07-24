@@ -5,11 +5,11 @@ services:
     #   - 3000:3000
     image: portfolio-v2-staging:latest
     networks:
-      traefik_proxy:
+      traefik-shared:
         aliases:
           - portfolio-v2-staging
     restart: unless-stopped
 
 networks:
-  traefik_proxy:
+  traefik-shared:
     external: true
