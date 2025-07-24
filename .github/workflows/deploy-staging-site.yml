@@ -6,6 +6,7 @@ on:
     branches:
       - staging
     # Runs on all paths, instead of main areas
+  workflow_dispatch:
 
 jobs:
   deploy-staging-repo:
