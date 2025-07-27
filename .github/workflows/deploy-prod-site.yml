@@ -29,10 +29,10 @@ jobs:
 
       # If already up, take it down
       - name: Stop and remove existing container
-        run: docker compose docker-compose.yml down || true
+        run: docker compose down || true
         working-directory: docker/prod
         
       # Start the app once again
       - name: Start container with Docker Compose
-        run: docker compose docker-compose.yml up -d
+        run: docker compose up -d
         working-directory: docker/prod
