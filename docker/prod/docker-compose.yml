@@ -1,8 +1,8 @@
 services:
   portfolio-v2-prod:
     container_name: portfolio-v2-prod
-    # expose:
-    #   - 3000:3000
+    ports:
+      - 3000:3000
     image: portfolio-v2-prod:latest
     networks:
       traefik_proxy:
