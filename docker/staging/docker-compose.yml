@@ -11,5 +11,5 @@ services:
     restart: unless-stopped
 
 networks:
-  traefik-shared:
+  traefik_proxy:
     external: true
