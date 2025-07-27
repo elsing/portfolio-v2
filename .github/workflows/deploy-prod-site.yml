@@ -7,9 +7,9 @@ on:
       - main
     # Only run on changes to the relevant code
     paths:
-      - app
-      - components
-      - docker
+      - app/**
+      - components/**
+      - docker/**
   workflow_dispatch:
     
 
