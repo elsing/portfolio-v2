@@ -1,3 +1,5 @@
+name: portfolio-v2-prod
+
 services:
   portfolio-v2-prod:
     container_name: portfolio-v2-prod
