@@ -10,6 +10,7 @@ on:
       - app
       - components
       - docker
+  workflow_dispatch:
     
 
 jobs:
