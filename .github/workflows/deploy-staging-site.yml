@@ -5,7 +5,9 @@ on:
   push:
     branches:
       - staging
-    # Runs on all paths, instead of main areas
+    # For the time being, only run changes on the portfolio site
+    paths:
+      - portfolio/
 
 jobs:
   deploy-staging-repo:
@@ -19,12 +21,12 @@ jobs:
 
       # Build the app and make a Docker image of it
       - name: Build Docker image
-        run: docker build -t portfolio-v2-staging:latest -f docker/staging/Dockerfile .
+        run: docker build -t portfolio-v2-staging:latest -f portfolio/docker/staging/Dockerfile .
 
       # If already up, take it down
       - name: Stop and remove existing container
-        run: docker compose -f docker/staging/docker-compose.yml down || true
+        run: docker compose -f portfolio/docker/staging/docker-compose.yml down || true
 
       # Start the app once again
       - name: Start container with Docker Compose
-        run: docker compose -f docker/staging/docker-compose.yml up -d
+        run: docker compose -f portfolio/docker/staging/docker-compose.yml up -d

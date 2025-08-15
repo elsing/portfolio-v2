@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 15, "column": 0}, "map": {"version":3,"sources":["file:///Users/elliotsinger/Documents/Software%20Development/portfolio-v2/components/typewriter.js"],"sourcesContent":["'use client'\n\nimport Link from \"next/link\";\nimport { Typewriter } from \"react-simple-typewriter\";\n\n\nexport default function TypewriterName() {\n  return (\n    <div className=\"\">\n        <Typewriter words={[\"Elliot Singer\"]}\n            cursorBlinking={true}\n            cursorStyle={\"_\"}\n            cursor\n            typeSpeed={80}\n            delaySpeed={2000}\n            // deleteSpeed={80}\n            \n        />\n        {/* <Typewriter words={[\"email me\", \"linkedin\", \"github\"]}\n            cursorBlinking={true}\n            cursorStyle={\"_\"}\n            cursor\n            typeSpeed={120}\n            loop\n        /> */}\n    </div>\n  );\n}\n"],"names":[],"mappings":";;;;AAEA;AACA;AAHA;;;;AAMe,SAAS;IACtB,qBACE,8OAAC;QAAI,WAAU;kBACX,cAAA,8OAAC,8JAAA,CAAA,aAAU;YAAC,OAAO;gBAAC;aAAgB;YAChC,gBAAgB;YAChB,aAAa;YACb,MAAM;YACN,WAAW;YACX,YAAY;;;;;;;;;;;AAaxB"}},
+    {"offset": {"line": 48, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}
