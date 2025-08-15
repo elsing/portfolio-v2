@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - staging
+    # Runs on all paths, instead of main areas
+  workflow_dispatch:
     # For the time being, only run changes on the portfolio site
     paths:
       - portfolio/
