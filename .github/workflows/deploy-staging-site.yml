@@ -6,10 +6,10 @@ on:
     branches:
       - staging
     # Runs on all paths, instead of main areas
-  workflow_dispatch:
-    # For the time being, only run changes on the portfolio site
     paths:
       - portfolio/
+  workflow_dispatch:
+    # For the time being, only run changes on the portfolio site
 
 jobs:
   deploy-staging-repo:
