@@ -1,7 +1,7 @@
 ---
-slug: long-blog-post
+slug: testing1234
 title: Long Blog Post
-authors: yangshun
+authors: elliot
 tags: [hello, docusaurus]
 ---
 

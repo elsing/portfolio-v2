@@ -1,7 +1,7 @@
 ---
-slug: first-blog-post
+slug: testing123
 title: First Blog Post
-authors: [slorber, yangshun]
+authors: [elliot]
 tags: [hola, docusaurus]
 ---
 
