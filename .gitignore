@@ -11,8 +11,9 @@ node_modules/
 !.yarn/versions
 
 # next.js
-/portfolio/next/
-/portfolio/out/
+.next/
+out/
+
 
 # production
 /portfolio/build
@@ -42,3 +43,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .archive
+portfolio/.next/server/chunks/ssr/\[root of the server]__aad802._.css.map
