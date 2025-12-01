@@ -8,7 +8,7 @@ export default function LandingPage() {
             {/* <h2 className="flex">i&apos;m friendly </h2> */}
             <TypewriterName />
         </div>
-        <h2 className="md:text-2xl text-[#52F7B0] pt-[16px] text-base flex">IT Engineer 🛠️ | DevOps Enthusiast 🤖 | Motorbiker 🏍</h2>
+        <h2 className="md:text-2xl text-[#52F7B0] pt-[16px] text-base flex">IT Engineer 🛠️ | DevOps Enthusiast 🤖 | Biker 🏍</h2>
         <h2 className="md:text-xl text-[#F9A11E] pt-[32px] text-base">
             connect with me -&gt;
             <Link href="mailto:elliot@singer.systems"> email |</Link>

@@ -8,6 +8,8 @@ on:
     # Runs on all paths, instead of main areas
     paths:
       - portfolio/
+      - docs/
+      - content/
   workflow_dispatch:
     # For the time being, only run changes on the portfolio site
 
@@ -22,13 +24,17 @@ jobs:
         uses: actions/checkout@v3
 
       # Build the app and make a Docker image of it
-      - name: Build Docker image
-        run: docker build -t portfolio-v2-staging:latest -f portfolio/docker/staging/Dockerfile .
+      - name: Build docs site Docker image
+        run: docker build -t portfolio-docs-staging:latest -f docs/Dockerfile .
+
+      # Build the app and make a Docker image of it
+      - name: Build landing site Docker image
+        run: docker build -t portfolio-landing-staging:latest -f landing/Dockerfile .
 
       # If already up, take it down
       - name: Stop and remove existing container
-        run: docker compose -f portfolio/docker/staging/docker-compose.yml down || true
+        run: docker compose -f docker/staging/docker-compose.yml down || true
 
       # Start the app once again
       - name: Start container with Docker Compose
-        run: docker compose -f portfolio/docker/staging/docker-compose.yml up -d
+        run: docker compose -f docker/staging/docker-compose.yml up -d

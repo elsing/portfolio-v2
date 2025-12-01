@@ -1,0 +1,9 @@
+name: portfolio-v2-staging
+
+services:
+  portfolio-v2-staging:
+    container_name: portfolio-v2-staging
+    ports:
+      - 3001:3000
+    image: portfolio-v2-staging:latest
+    restart: unless-stopped
