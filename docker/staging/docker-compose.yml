@@ -1,9 +1,15 @@
-name: portfolio-v2-staging
+name: portfolio-staging
 
 services:
-  portfolio-v2-staging:
-    container_name: portfolio-v2-staging
+  portfolio-landing-staging:
+    container_name: portfolio-landing-staging
+    image: portfolio-landing-staging:latest
     ports:
-      - 3001:3000
-    image: portfolio-v2-staging:latest
+      - 3002:3000
+    restart: unless-stopped
+  portfolio-docs-staging:
+    container_name: portfolio-docs-staging
+    image: portfolio-docs-staging:latest
+    ports:
+      - 3003:3000
     restart: unless-stopped
