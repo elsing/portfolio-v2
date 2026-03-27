@@ -8,15 +8,21 @@ const NAV_LINKS = [
 
 export default function Nav() {
   return (
-    <nav style={{ borderBottom: '1px solid var(--border)', fontFamily: 'var(--mono)', position: 'relative', zIndex: 10 }}
-      className="flex items-center justify-between px-10 py-5">
-      <span style={{ color: 'var(--muted)', fontSize: '12px', letterSpacing: '0.05em' }}>singer.systems</span>
+    <nav
+      style={{ borderBottom: '1px solid var(--border)', fontFamily: 'var(--mono)', position: 'relative', zIndex: 10 }}
+      className="flex items-center justify-between px-10 py-5"
+    >
+      <span style={{ color: 'var(--muted)', fontSize: '13px', letterSpacing: '0.05em' }}>
+        singer.systems
+      </span>
+
       <ul className="flex list-none">
         {NAV_LINKS.map(({ href, label }, i) => (
           <li key={href}>
             <Link href={href} className="nav-link" style={{
-              color: 'var(--muted)', fontSize: '11px', letterSpacing: '0.04em',
-              padding: '4px 14px', borderRight: '1px solid var(--border)',
+              color: 'var(--muted)', fontSize: '12px', letterSpacing: '0.04em',
+              padding: '4px 16px',
+              borderRight: '1px solid var(--border)',
               borderLeft: i === 0 ? '1px solid var(--border)' : undefined,
               transition: 'color 0.15s', display: 'block', textDecoration: 'none',
             }}>
@@ -25,8 +31,10 @@ export default function Nav() {
           </li>
         ))}
       </ul>
-      <div className="flex items-center gap-2" style={{ color: 'var(--green)', fontSize: '11px' }}>
-        <span className="pulse-dot block rounded-full" style={{ width: '5px', height: '5px', background: 'var(--green)' }} />
+
+      <div className="flex items-center gap-2" style={{ color: 'var(--green)', fontSize: '12px' }}>
+        <span className="pulse-dot block rounded-full"
+          style={{ width: '6px', height: '6px', background: 'var(--green)' }} />
         all systems operational
       </div>
     </nav>

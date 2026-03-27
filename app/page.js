@@ -12,7 +12,7 @@ export default function HomePage() {
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
 
-      {/* Background texture */}
+      {/* Background texture — right half */}
       <div aria-hidden="true" style={{
         position: 'absolute', top: 0, right: 0,
         width: '48%', height: '100%',
@@ -44,7 +44,7 @@ export default function HomePage() {
       <div style={{
         position: 'relative', zIndex: 2,
         borderTop: '1px solid var(--border)',
-        display: 'grid', gridTemplateColumns: '1fr 1fr',
+        display: 'grid', gridTemplateColumns: '7fr 5fr',
       }}>
         <div style={{ borderRight: '1px solid var(--border)' }}>
           <Experience />
@@ -56,10 +56,10 @@ export default function HomePage() {
       <footer style={{
         position: 'relative', zIndex: 2,
         borderTop: '1px solid var(--border)',
-        padding: '14px 40px',
+        padding: '16px 40px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
-        <span style={{ fontFamily: 'var(--mono)', fontSize: '10px', color: 'var(--muted)' }}>
+        <span style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--muted)' }}>
           © {new Date().getFullYear()} elliot singer · singer.systems
         </span>
         <div style={{ display: 'flex', gap: '20px' }}>
@@ -73,7 +73,7 @@ export default function HomePage() {
               target={href.startsWith('http') ? '_blank' : undefined}
               rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
               className="footer-link"
-              style={{ fontFamily: 'var(--mono)', fontSize: '10px', color: 'var(--muted)', textDecoration: 'none', transition: 'color 0.15s' }}>
+              style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--muted)', textDecoration: 'none', transition: 'color 0.15s' }}>
               {label}
             </a>
           ))}
