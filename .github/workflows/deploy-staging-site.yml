@@ -10,6 +10,8 @@ on:
       - portfolio/app
       - portfolio/components
       - portfolio/docker
+      - portfolio/content
+  workflow_dispatch:
 
 jobs:
   deploy-repo:
