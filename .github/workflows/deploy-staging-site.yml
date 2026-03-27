@@ -25,12 +25,12 @@ jobs:
 
       # Build the app and make a Docker image of it
       - name: Build Docker image
-        run: docker build -t portfolio-v2-prod:latest -f portfolio/docker/prod/Dockerfile .
+        run: docker build -t portfolio-v3-staging:latest -f docker/staging/Dockerfile .
 
       # If already up, take it down
       - name: Stop and remove existing container
-        run: docker compose -f portfolio/docker/staging/docker-compose.yml down || true
+        run: docker compose -f docker/staging/docker-compose.yml down || true
 
       # Start the app once again
       - name: Start container with Docker Compose
-        run: docker compose -f portfolio/docker/staging/docker-compose.yml up -d
+        run: docker compose -f docker/staging/docker-compose.yml up -d
