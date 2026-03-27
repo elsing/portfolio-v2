@@ -11,3 +11,7 @@ services:
         aliases:
           - portfolio-v2-prod
     restart: unless-stopped
+
+networks:
+  traefik_proxy:
+    external: true

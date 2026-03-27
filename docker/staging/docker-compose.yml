@@ -1,15 +1,17 @@
-name: portfolio-staging
+name: portfolio-v2-staging
 
 services:
-  portfolio-landing-staging:
-    container_name: portfolio-landing-staging
-    image: portfolio-landing-staging:latest
+  portfolio-v2-staging:
+    container_name: portfolio-v2-staging
     ports:
-      - 3002:3000
+      - 3001:3000
+    image: portfolio-v2-staging:latest
+    networks:
+      traefik_proxy:
+        aliases:
+          - portfolio-v2-staging
     restart: unless-stopped
-  portfolio-docs-staging:
-    container_name: portfolio-docs-staging
-    image: portfolio-docs-staging:latest
-    ports:
-      - 3003:3000
-    restart: unless-stopped
+
+networks:
+  traefik_proxy:
+    external: true

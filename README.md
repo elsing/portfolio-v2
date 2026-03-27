@@ -2,7 +2,7 @@
 
 Created to replace my older portfolio site.
 
-The idea eventually is to have projects and other bits I have done uploaded to it (IN PROGRESS)
+The idea eventually is to have projects and other bits I have done uploaded to it.
 
 ## Automation
 

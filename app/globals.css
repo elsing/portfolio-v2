@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg:          #161a18;
+  --bg2:         #1c201e;
+  --bg3:         #222824;
+  --border:      rgba(255, 255, 255, 0.07);
+  --border-soft: rgba(255, 255, 255, 0.04);
+  --border-mid:  rgba(255, 255, 255, 0.12);
+  --text:        #e2ede6;
+  --muted:       #4f6359;
+  --muted-hi:    #7d9a88;
+  --green:       #3ddb72;
+  --amber:       #d4a84b;
+  --blue:        #5b9fd4;
+  --mono:        'JetBrains Mono', monospace;
+  --sans:        'DM Sans', sans-serif;
+}
+
+html, body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+}
+
+/* ── Cursor blink ─────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.cursor-blink {
+  animation: blink 1.1s step-end infinite;
+}
+
+/* ── Status dot pulse ─────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+.pulse-dot {
+  animation: pulse-dot 2.5s ease-in-out infinite;
+}
+
+/* ── Experience item hover ────────────────────── */
+/* Experience.jsx uses 'use client' with onMouseEnter/Leave
+   so these classes are just fallback/supplementary */
+.exp-item {
+  padding: 14px 0 14px 14px;
+  border-left: 2px solid var(--border);
+  margin-bottom: 4px;
+  transition: border-color 0.2s;
+}
+
+/* ── Post item hover — landing page posts column ─ */
+.post-link {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  text-decoration: none;
+  transition: transform 0.18s ease;
+}
+.post-link:hover {
+  transform: translateX(4px);
+}
+.post-link-title {
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 3px;
+  color: var(--muted-hi);
+  transition: color 0.18s ease;
+}
+.post-link:hover .post-link-title {
+  color: var(--text);
+}
+
+/* ── Nav / button hovers ──────────────────────── */
+.nav-link:hover    { color: var(--text); }
+.btn-ghost:hover   { color: var(--text); border-color: rgba(255, 255, 255, 0.22); }
+.footer-link:hover { color: var(--muted-hi); }
+
+/* ── Blog listing post row hover ──────────────── */
+.blog-row {
+  transition: background 0.15s, transform 0.15s;
+  cursor: pointer;
+}
+.blog-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+.blog-row:hover .blog-row-title {
+  color: var(--green);
+}
+.blog-row-title {
+  transition: color 0.15s;
+  color: var(--text);
+}
+
+/* ── Blog prose styles (post reading view) ────── */
+.prose-content {
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--muted-hi);
+  font-weight: 300;
+}
+.prose-content h2 {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 2.5rem 0 1rem;
+  letter-spacing: -0.01em;
+}
+.prose-content h3 {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 2rem 0 0.75rem;
+}
+.prose-content p {
+  margin-bottom: 1.25rem;
+}
+.prose-content em {
+  color: var(--text);
+  font-style: normal;
+}
+.prose-content strong {
+  color: var(--text);
+  font-weight: 500;
+}
+.prose-content a {
+  color: var(--green);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(61, 219, 114, 0.3);
+  transition: border-color 0.15s;
+}
+.prose-content a:hover {
+  border-bottom-color: var(--green);
+}
+.prose-content code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border-mid);
+  border-radius: 3px;
+  padding: 1px 6px;
+  color: var(--green);
+}
+.prose-content pre {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px 24px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+.prose-content pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: var(--muted-hi);
+}
+.prose-content blockquote {
+  border-left: 2px solid var(--green);
+  padding-left: 16px;
+  margin: 1.5rem 0;
+  color: var(--muted-hi);
+  font-style: italic;
+}
+.prose-content ul, .prose-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.prose-content li {
+  margin-bottom: 0.4rem;
+}
+.prose-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
