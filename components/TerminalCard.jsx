@@ -108,7 +108,6 @@ export default function TerminalCard() {
       : Math.max(0, SESSION_LIMIT - parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10))
   );
 
-  // null until mounted — prevents hydration mismatch from sessionStorage
   const remaining = !mounted
     ? null
     : ipRemaining === null
@@ -117,8 +116,9 @@ export default function TerminalCard() {
 
   const outputRef    = useRef(null);
   const inputRef     = useRef(null);
-  const cmdHistory   = useRef([]);   // typed commands only, for up/down
-  const historyIndex = useRef(-1);   // -1 = not browsing
+  const wrapRef      = useRef(null);
+  const cmdHistory   = useRef([]);
+  const historyIndex = useRef(-1);
 
   // Mark as mounted (client only)
   useEffect(() => { setMounted(true); }, []);
@@ -128,6 +128,17 @@ export default function TerminalCard() {
     const el = outputRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [lines]);
+
+  // Prevent page scroll jump when iOS keyboard appears
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    const handler = () => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    };
+    viewport.addEventListener('resize', handler);
+    return () => viewport.removeEventListener('resize', handler);
+  }, []);
 
   // Boot sequence
   useEffect(() => {
@@ -174,7 +185,7 @@ export default function TerminalCard() {
 
       if (ok && effectiveRemaining > 0) {
         afterLines.push({ type: 'hint', text: pickRandom(BOOT_OUTROS) });
-      } else {
+      } else if (!ok) {
         afterLines.push({ type: 'warn', text: 'offline for now — check back soon.' });
       }
 
@@ -233,7 +244,6 @@ export default function TerminalCard() {
     const cmd = input.trim();
     if (!cmd || loading || !connected || !remaining || remaining === 0) return;
 
-    // Push to command history and reset index
     cmdHistory.current = [...cmdHistory.current, cmd];
     historyIndex.current = -1;
 
@@ -251,6 +261,32 @@ export default function TerminalCard() {
     }
     if (cmd === 'uptime') { append([{ type: 'out', text: 'up 3 years, still running. mostly.' }]); return; }
     if (cmd === 'whoami') { append([{ type: 'out', text: 'elliot singer — it engineer & self-hoster' }]); return; }
+
+    if (cmd.startsWith('sudo')) {
+      append([{ type: 'err', text: 'nice try.' }]);
+      return;
+    }
+    if (cmd === 'ls') {
+      append([
+        { type: 'out', text: 'drwxr-xr-x  proxmox-cluster/' },
+        { type: 'out', text: 'drwxr-xr-x  wireguard-mesh/'  },
+        { type: 'out', text: 'drwxr-xr-x  homelab-docs/'    },
+        { type: 'out', text: '-rw-r--r--  2am-incidents.log' },
+        { type: 'out', text: '-rw-r--r--  things-i-shouldnt-have-done.txt' },
+      ]);
+      return;
+    }
+    if (cmd === 'ping singer.systems') {
+      append([
+        { type: 'out', text: 'PING singer.systems (10.10.0.1)' },
+        { type: 'out', text: '64 bytes from 10.10.0.1: icmp_seq=1 ttl=64 time=0.4 ms' },
+        { type: 'out', text: '64 bytes from 10.10.0.1: icmp_seq=2 ttl=64 time=0.3 ms' },
+        { type: 'out', text: '64 bytes from 10.10.0.1: icmp_seq=3 ttl=64 time=0.4 ms' },
+        { type: 'success', text: '3 packets transmitted, 3 received, 0% packet loss' },
+      ]);
+      return;
+    }
+
 
     setLoading(true);
     const newHistory = [...history, { role: 'user', content: cmd }];
@@ -313,7 +349,7 @@ export default function TerminalCard() {
     : 'ask me anything about elliot';
 
   return (
-    <div className="terminal-wrap">
+    <div ref={wrapRef} className="terminal-wrap">
       <div
         className="relative z-10 rounded-lg overflow-hidden w-full bg-bg2 border border-white/[0.12] cursor-text"
         onClick={() => inputRef.current?.focus({ preventScroll: true })}
