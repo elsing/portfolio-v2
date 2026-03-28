@@ -112,6 +112,25 @@ export async function POST(request) {
       return Response.json({ error: 'invalid request' }, { status: 400 });
     }
 
+    // Reject if any single message exceeds 60 chars
+    const hasOversizedMessage = body.messages.some(
+      m => typeof m.content === 'string' && m.content.length > 60
+    );
+    if (hasOversizedMessage) {
+      return Response.json({ error: 'message too long' }, { status: 400 });
+    }
+
+    // Reject if total conversation history exceeds 4000 chars
+    const totalChars = body.messages.reduce(
+      (sum, m) => sum + (typeof m.content === 'string' ? m.content.length : 0), 0
+    );
+    if (totalChars > 4000) {
+      return Response.json(
+        { error: 'conversation history too long — try starting a new session with clear' },
+        { status: 400 }
+      );
+    }
+
     const sessionRemaining = typeof body.sessionRemaining === 'number'
       ? Math.max(0, body.sessionRemaining)
       : null;
@@ -121,7 +140,7 @@ export async function POST(request) {
       .slice(-10)
       .map(m => ({
         role:    m.role === 'assistant' ? 'assistant' : 'user',
-        content: String(m.content).slice(0, 300),
+        content: String(m.content).slice(0, 60),
       }));
 
     consumeRequest(ip);

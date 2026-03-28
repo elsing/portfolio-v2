@@ -1,8 +1,8 @@
 ---
-title: "Redesigning my portfolio, thrid time around, but AI powered"
+title: "Redesigning my portfolio, third time around, but AI powered"
 date: "2026-03-28"
 tags: ["design", "ai","portfolio"]
-excerpt: "A deep dive into the designing, configuration and deployment of my new AI-infused portfolio site. I am pretty chuffed with it. Thanks Claude <3"
+excerpt: "A deep dive into the designing, configuration and deployment of my new AI-infused portfolio site. I am pretty chuffed with it. Thanks Claude for the help 🫶"
 priority: 1
 ---
 

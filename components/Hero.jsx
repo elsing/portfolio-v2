@@ -94,7 +94,7 @@ export default function Hero() {
           </div>
 
           <p className="text-[18px] text-site-muted-hi leading-[1.85] font-light max-w-[500px] mx-auto xl:mx-0 mb-9">
-            Building and breaking things since before it was my job title.
+            Building, breaking and fixing things since before it was my job title.
             I run a{' '}
             <em className="text-site-text not-italic">highly-available private hybrid cloud</em>
             {' '}spanning 3 countries and 20+ servers.

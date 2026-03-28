@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useTerminal } from '@/components/TerminalContext';
 
-const IP_LIMIT      = 25;
-const SESSION_LIMIT = 6;
-const SESSION_KEY   = 'folio_session_count';
-const WARN_AT       = 3;
-const BOOT_RETRIES  = 4;
-const BOOT_DELAY    = 2000;
+const WARN_AT      = 3;
+const BOOT_RETRIES = 4;
+const BOOT_DELAY   = 2000;
+const MAX_CHARS    = 60;
+const CHAR_WARN_AT = 20;
+const DECRYPT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&';
 
 const BOOT_OUTROS = [
   "try asking about elliot's experience or skills",
@@ -20,6 +21,20 @@ const BOOT_OUTROS = [
 
 function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function randomChar() {
+  return DECRYPT_CHARS[Math.floor(Math.random() * DECRYPT_CHARS.length)];
+}
+
+function scrambleLine(text, revealedFraction) {
+  if (!text) return text;
+  const revealed = Math.floor(text.length * revealedFraction);
+  return text.split('').map((ch, i) => {
+    if (i < revealed) return ch;
+    if (ch === ' ' || ch === '—' || ch === '·') return ch;
+    return randomChar();
+  }).join('');
 }
 
 function Line({ line }) {
@@ -95,18 +110,20 @@ function FadeIn({ children, className = '' }) {
 }
 
 export default function TerminalCard() {
-  const [mounted,     setMounted]     = useState(false);
-  const [lines,       setLines]       = useState([]);
-  const [input,       setInput]       = useState('');
-  const [loading,     setLoading]     = useState(false);
-  const [history,     setHistory]     = useState([]);
-  const [connected,   setConnected]   = useState(null);
-  const [ipRemaining, setIpRemaining] = useState(null);
-  const [sessionLeft, setSessionLeft] = useState(() =>
-    typeof window === 'undefined'
-      ? SESSION_LIMIT
-      : Math.max(0, SESSION_LIMIT - parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10))
-  );
+  const {
+    lines, setLines,
+    history, setHistory,
+    connected, setConnected,
+    ipRemaining, setIpRemaining,
+    sessionLeft, setSessionLeft,
+    booted,
+    IP_LIMIT, SESSION_LIMIT, SESSION_KEY,
+  } = useTerminal();
+
+  const [mounted,       setMounted]       = useState(false);
+  const [input,         setInput]         = useState('');
+  const [loading,       setLoading]       = useState(false);
+  const [decryptLines,  setDecryptLines]  = useState(null); // null = not decrypting
 
   const remaining = !mounted
     ? null
@@ -116,11 +133,9 @@ export default function TerminalCard() {
 
   const outputRef    = useRef(null);
   const inputRef     = useRef(null);
-  const wrapRef      = useRef(null);
   const cmdHistory   = useRef([]);
   const historyIndex = useRef(-1);
 
-  // Mark as mounted (client only)
   useEffect(() => { setMounted(true); }, []);
 
   // Auto-scroll on new lines
@@ -129,19 +144,46 @@ export default function TerminalCard() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [lines]);
 
-  // Prevent page scroll jump when iOS keyboard appears
+  // Decrypt effect when returning to page (already booted)
   useEffect(() => {
-    const viewport = window.visualViewport;
-    if (!viewport) return;
-    const handler = () => {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    };
-    viewport.addEventListener('resize', handler);
-    return () => viewport.removeEventListener('resize', handler);
-  }, []);
+    if (!booted.current || lines.length === 0) return;
 
-  // Boot sequence
+    const DURATION = 600;
+    const FPS      = 30;
+    const interval = 1000 / FPS;
+    const steps    = DURATION / interval;
+    let   step     = 0;
+
+    // Capture the real lines at start
+    const realLines = lines;
+
+    const timer = setInterval(() => {
+      step++;
+      const fraction = step / steps;
+
+      setDecryptLines(
+        realLines.map(line => {
+          if (!line.text || line.type === 'gap' || line.type === 'divider' || line.type === 'status') return line;
+          const type = line.type === 'typing' ? 'out' : line.type;
+          return { ...line, type, text: scrambleLine(line.text, fraction) };
+        })
+      );
+
+      if (step >= steps) {
+        clearInterval(timer);
+        setDecryptLines(null); // snap back to real lines
+      }
+    }, interval);
+
+    return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // only on mount
+
+  // Boot sequence — only runs once across all navigations
   useEffect(() => {
+    if (booted.current) return;
+    booted.current = true;
+
     async function boot() {
       setLines([
         { type: 'out',    text: 'folio-ai — singer.systems' },
@@ -261,7 +303,6 @@ export default function TerminalCard() {
     }
     if (cmd === 'uptime') { append([{ type: 'out', text: 'up 3 years, still running. mostly.' }]); return; }
     if (cmd === 'whoami') { append([{ type: 'out', text: 'elliot singer — it engineer & self-hoster' }]); return; }
-
     if (cmd.startsWith('sudo')) {
       append([{ type: 'err', text: 'nice try.' }]);
       return;
@@ -278,15 +319,14 @@ export default function TerminalCard() {
     }
     if (cmd === 'ping singer.systems') {
       append([
-        { type: 'out', text: 'PING singer.systems (10.10.0.1)' },
-        { type: 'out', text: '64 bytes from 10.10.0.1: icmp_seq=1 ttl=64 time=0.4 ms' },
-        { type: 'out', text: '64 bytes from 10.10.0.1: icmp_seq=2 ttl=64 time=0.3 ms' },
-        { type: 'out', text: '64 bytes from 10.10.0.1: icmp_seq=3 ttl=64 time=0.4 ms' },
+        { type: 'out',     text: 'PING singer.systems (10.10.0.1)' },
+        { type: 'out',     text: '64 bytes from 10.10.0.1: icmp_seq=1 ttl=64 time=0.4 ms' },
+        { type: 'out',     text: '64 bytes from 10.10.0.1: icmp_seq=2 ttl=64 time=0.3 ms' },
+        { type: 'out',     text: '64 bytes from 10.10.0.1: icmp_seq=3 ttl=64 time=0.4 ms' },
         { type: 'success', text: '3 packets transmitted, 3 received, 0% packet loss' },
       ]);
       return;
     }
-
 
     setLoading(true);
     const newHistory = [...history, { role: 'user', content: cmd }];
@@ -317,7 +357,15 @@ export default function TerminalCard() {
           const el = outputRef.current;
           if (el) el.scrollTop = el.scrollHeight;
         };
-        const focusAfterType = () => inputRef.current?.focus({ preventScroll: true });
+        const focusAfterType = () => {
+          inputRef.current?.focus({ preventScroll: true });
+          // Promote completed typing line to plain out so it doesn't replay on re-mount
+          setLines(prev => prev.map(l =>
+            l.type === 'typing' && l.text === data.reply
+              ? { ...l, type: 'out' }
+              : l
+          ));
+        };
 
         append([{ type: 'typing', text: data.reply, onScroll: scrollToBottom, onDone: focusAfterType }]);
         setHistory([...newHistory, { role: 'assistant', content: data.reply }]);
@@ -349,7 +397,7 @@ export default function TerminalCard() {
     : 'ask me anything about elliot';
 
   return (
-    <div ref={wrapRef} className="terminal-wrap">
+    <div className="terminal-wrap">
       <div
         className="relative z-10 rounded-lg overflow-hidden w-full bg-bg2 border border-white/[0.12] cursor-text"
         onClick={() => inputRef.current?.focus({ preventScroll: true })}
@@ -382,7 +430,7 @@ export default function TerminalCard() {
           className="terminal-output px-[18px] pt-3.5 pb-1 overflow-y-auto overflow-x-hidden"
           style={{ height: '360px' }}
         >
-          {lines.map((line, i) => <Line key={i} line={line} />)}
+          {(decryptLines ?? lines).map((line, i) => <Line key={i} line={line} />)}
           {loading && (
             <div className="font-mono text-xs text-site-muted pl-4 leading-7">
               thinking<span className="term-blink">_</span>
@@ -403,7 +451,7 @@ export default function TerminalCard() {
             ref={inputRef}
             type="text"
             value={input}
-            onChange={e => { historyIndex.current = -1; setInput(e.target.value); }}
+            onChange={e => { historyIndex.current = -1; setInput(e.target.value.slice(0, MAX_CHARS)); }}
             onKeyDown={handleKeyDown}
             disabled={isDisabled}
             placeholder={placeholder}
@@ -413,6 +461,19 @@ export default function TerminalCard() {
             spellCheck={false}
             className="flex-1 min-w-0 bg-transparent border-none outline-none font-mono text-[16px] md:text-xs text-site-text caret-site-green placeholder:text-site-muted"
           />
+          <span
+            className={`font-mono text-[10px] shrink-0 transition-all duration-200 overflow-hidden ${
+              input.length >= MAX_CHARS - CHAR_WARN_AT
+                ? 'opacity-100 max-w-[3rem]'
+                : 'opacity-0 max-w-0'
+            } ${
+              input.length >= MAX_CHARS - 5
+                ? 'text-site-red'
+                : 'text-site-amber'
+            }`}
+          >
+            {MAX_CHARS - input.length}
+          </span>
         </form>
       </div>
     </div>
