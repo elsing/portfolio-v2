@@ -3,26 +3,7 @@ import { getPostBySlug, getAllPosts, formatDate } from '@/lib/posts';
 import { markdownToHtml } from '@/lib/markdownToHtml';
 import Nav                from '@/components/Nav';
 import Link               from 'next/link';
-
-const TAG_COLOURS = {
-  proxmox:    { color: '#e8822a', bg: 'rgba(232,130,42,0.1)',  border: 'rgba(232,130,42,0.25)'  },
-  traefik:    { color: '#5b9fd4', bg: 'rgba(91,159,212,0.1)',  border: 'rgba(91,159,212,0.25)'  },
-  docker:     { color: '#5b9fd4', bg: 'rgba(91,159,212,0.1)',  border: 'rgba(91,159,212,0.25)'  },
-  networking: { color: '#9d7fea', bg: 'rgba(157,127,234,0.1)', border: 'rgba(157,127,234,0.25)' },
-  zabbix:     { color: '#d4a84b', bg: 'rgba(212,168,75,0.1)',  border: 'rgba(212,168,75,0.25)'  },
-  devops:     { color: '#3ddb72', bg: 'rgba(61,219,114,0.08)', border: 'rgba(61,219,114,0.25)'  },
-  incident:   { color: '#e05050', bg: 'rgba(224,80,80,0.1)',   border: 'rgba(224,80,80,0.25)'   },
-};
-
-function TagPill({ tag }) {
-  const c = TAG_COLOURS[tag] ?? { color: 'var(--muted-hi)', bg: 'transparent', border: 'var(--border-mid)' };
-  return (
-    <span className="font-mono text-[11px] tracking-[0.06em] uppercase px-2.5 py-0.5 rounded-sm border"
-      style={{ color: c.color, background: c.bg, borderColor: c.border }}>
-      {tag}
-    </span>
-  );
-}
+import TagPill            from '@/components/TagPill';
 
 function SidebarLabel({ children }) {
   return (
