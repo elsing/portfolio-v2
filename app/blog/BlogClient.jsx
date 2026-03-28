@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Nav from '@/components/Nav';
 import TagPill from '@/components/TagPill';
+import Footer  from '@/components/Footer';
 
 export default function BlogClient({ posts }) {
   const [query,     setQuery]     = useState('');
@@ -185,14 +186,7 @@ export default function BlogClient({ posts }) {
           </aside>
         </div>
 
-        <footer style={{ borderTop: '1px solid var(--border)', padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: '12px', color: 'var(--muted)' }}>© {new Date().getFullYear()} elliot singer · singer.systems</span>
-          <div style={{ display: 'flex', gap: '20px' }}>
-            {[{ href: '/', label: './home' }, { href: '/homelab', label: './homelab' }, { href: 'https://github.com/elsing', label: 'github' }].map(({ href, label }) => (
-              <a key={label} href={href} className="footer-link" style={{ fontFamily: 'var(--mono)', fontSize: '12px', color: 'var(--muted)', textDecoration: 'none', transition: 'color 0.15s' }}>{label}</a>
-            ))}
-          </div>
-        </footer>
+        <Footer />
 
       </div>
     </div>

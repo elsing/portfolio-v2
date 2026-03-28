@@ -10,7 +10,7 @@ const NAV_LINKS = [
 ];
 
 const STATUS_URL      = 'https://status.singer.systems';
-const CLIENT_INTERVAL = 2 * 60 * 1000; // client re-checks cached endpoint every 2 min
+const CLIENT_INTERVAL = 2 * 60 * 1000;
 
 export default function Nav() {
   const [allUp,   setAllUp]   = useState(true);
@@ -30,13 +30,10 @@ export default function Nav() {
     return () => clearInterval(timerRef.current);
   }, []);
 
-  const dotColour = allUp ? 'bg-site-green' : 'bg-site-amber';
-  const txtColour = allUp ? 'text-site-green' : 'text-site-amber';
-  const label     = !checked
-    ? 'checking...'
-    : allUp
-    ? 'all systems operational'
-    : 'service degraded';
+  const dotColour  = allUp ? 'bg-site-green' : 'bg-site-amber';
+  const txtColour  = allUp ? 'text-site-green' : 'text-site-amber';
+  const label      = !checked ? 'checking...' : allUp ? 'all systems operational' : 'service degraded';
+  const labelShort = !checked ? 'checking...' : allUp ? 'operational'             : 'degraded';
 
   return (
     <nav className="relative z-10 flex items-center justify-between gap-x-4 px-5 sm:px-10 py-4 border-b border-white/[0.07] font-mono">
@@ -71,7 +68,8 @@ export default function Nav() {
         className={`flex items-center gap-2 text-[12px] no-underline shrink-0 transition-opacity hover:opacity-75 ${txtColour}`}
       >
         <span className={`block w-1.5 h-1.5 rounded-full shrink-0 ${dotColour} ${allUp ? 'pulse-dot' : ''}`} />
-        <span className="hidden xs:inline">
+        <span className="hidden xs:inline sm:hidden">{labelShort}</span>
+        <span className="hidden sm:inline">
           {label}
           {!allUp && checked && (
             <> — <span className="underline underline-offset-2">see here</span></>

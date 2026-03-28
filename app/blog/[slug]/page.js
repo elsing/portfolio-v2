@@ -4,6 +4,7 @@ import { markdownToHtml } from '@/lib/markdownToHtml';
 import Nav                from '@/components/Nav';
 import Link               from 'next/link';
 import TagPill            from '@/components/TagPill';
+import Footer             from '@/components/Footer';
 
 function SidebarLabel({ children }) {
   return (
@@ -152,17 +153,7 @@ export default async function PostPage({ params }) {
           ) : <div />}
         </div>
 
-        {/* Footer */}
-        <footer className="border-t border-white/[0.07] px-10 py-4 flex justify-between items-center flex-wrap gap-3">
-          <span className="font-mono text-[12px] text-site-muted">
-            © {new Date().getFullYear()} elliot singer · singer.systems
-          </span>
-          <div className="flex gap-5">
-            {[{href:'/',label:'./home'},{href:'/blog',label:'./blog'},{href:'/homelab',label:'./homelab'}].map(({href,label})=>(
-              <a key={label} href={href} className="footer-link font-mono text-[12px] text-site-muted no-underline">{label}</a>
-            ))}
-          </div>
-        </footer>
+        <Footer />
 
       </div>
     </div>
