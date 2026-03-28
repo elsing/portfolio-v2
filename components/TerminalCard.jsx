@@ -170,14 +170,14 @@ export default function TerminalCard() {
       const statusLine = !ok
         ? { type: 'err',     text: 'disconnected — AI feature unavailable' }
         : effectiveRemaining === 0
-        ? { type: 'warn',    text: 'rate limited — try again later in an hour or so'       }
+        ? { type: 'warn',    text: 'rate limited — try again in an hour or so'       }
         : { type: 'success', text: 'connected to proxmox cluster'          };
 
       const afterLines = [{ type: 'gap' }];
 
       if (ok && effectiveRemaining > 0) {
         afterLines.push({ type: 'hint', text: pickRandom(BOOT_OUTROS) });
-      } else if (!ok) {
+      } else {
         afterLines.push({ type: 'warn', text: 'offline for now — check back soon.' });
       }
 
@@ -349,7 +349,8 @@ export default function TerminalCard() {
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck={false}
-            className="flex-1 min-w-0 bg-transparent border-none outline-none font-mono text-xs text-site-text caret-site-green placeholder:text-site-muted"
+            className="flex-1 min-w-0 bg-transparent border-none outline-none font-mono text-site-text caret-site-green placeholder:text-site-muted"
+            style={{ fontSize: '16px' }}
           />
         </form>
       </div>
