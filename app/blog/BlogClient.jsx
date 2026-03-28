@@ -33,10 +33,15 @@ export default function BlogClient({ posts }) {
   const [activeTag, setActiveTag] = useState('all');
 
   const pinned  = posts.find(p => p.priority === 1);
-  // Derive tags dynamically from actual posts — sorted alphabetically
-  const ALL_TAGS = useMemo(() =>
-    [...new Set(posts.flatMap(p => p.tags))].sort(),
-  [posts]);
+  // All tags sorted by frequency (most used first)
+  const { ALL_TAGS, TOP_TAGS } = useMemo(() => {
+    const counts = {};
+    posts.flatMap(p => p.tags).forEach(t => { counts[t] = (counts[t] ?? 0) + 1; });
+    const sorted = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([tag]) => tag);
+    return { ALL_TAGS: sorted, TOP_TAGS: sorted.slice(0, 4) };
+  }, [posts]);
 
   const regular = posts.filter(p => p.priority !== 1);
 
@@ -81,7 +86,7 @@ export default function BlogClient({ posts }) {
               style={{ width: '100%', background: 'var(--bg2)', border: '1px solid var(--border-mid)', borderRadius: '5px', padding: '9px 12px 9px 36px', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)', outline: 'none' }} />
           </div>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {['all', ...ALL_TAGS].map(tag => (
+            {['all', ...TOP_TAGS].map(tag => (
               <button key={tag} onClick={() => setActiveTag(tag)} style={{
                 fontFamily: 'var(--mono)', fontSize: '12px', letterSpacing: '0.04em',
                 padding: '5px 12px', borderRadius: '4px', cursor: 'pointer',

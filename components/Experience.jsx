@@ -3,7 +3,7 @@
 const EXPERIENCE_ITEMS = [
   { role: 'Junior DevOps & Infra Engineer', org: 'upcoming role',         date: null,                upcoming: true  },
   { role: '2nd Line Support Engineer',      org: 'current position',      date: 'present',           upcoming: false },
-  { role: 'Homelab Architect',              org: 'singer.systems — self', date: 'ongoing · 3+ years', upcoming: false },
+  { role: 'Homelab Architect',              org: 'singer.systems — self', date: 'ongoing · 13+ years', upcoming: false },
 ];
 
 function ExpItem({ role, org, date, upcoming }) {

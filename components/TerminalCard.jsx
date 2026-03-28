@@ -115,8 +115,10 @@ export default function TerminalCard() {
     ? sessionLeft
     : Math.min(sessionLeft, ipRemaining);
 
-  const outputRef = useRef(null);
-  const inputRef  = useRef(null);
+  const outputRef    = useRef(null);
+  const inputRef     = useRef(null);
+  const cmdHistory   = useRef([]);   // typed commands only, for up/down
+  const historyIndex = useRef(-1);   // -1 = not browsing
 
   // Mark as mounted (client only)
   useEffect(() => { setMounted(true); }, []);
@@ -130,13 +132,11 @@ export default function TerminalCard() {
   // Boot sequence
   useEffect(() => {
     async function boot() {
-      // Show the header line immediately, with a status-checking placeholder
       setLines([
         { type: 'out',    text: 'folio-ai — singer.systems' },
         { type: 'status', text: 'checking connection' },
       ]);
 
-      // Fetch IP remaining first — fast, no Ollama dependency
       let remNum = IP_LIMIT;
       try {
         const remRes = await fetch('/api/terminal/remaining');
@@ -145,12 +145,10 @@ export default function TerminalCard() {
         setIpRemaining(remNum);
       } catch {}
 
-      // Session count
       const sessionUsed        = parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10);
       const sessLeft           = Math.max(0, SESSION_LIMIT - sessionUsed);
       const effectiveRemaining = Math.min(sessLeft, remNum);
 
-      // Retry health — Ollama may still be warming up on container start
       let ok = false;
       for (let attempt = 0; attempt < BOOT_RETRIES; attempt++) {
         try {
@@ -166,12 +164,11 @@ export default function TerminalCard() {
 
       setConnected(ok);
 
-      // Replace the status line with the real result, then append the rest
       const statusLine = !ok
         ? { type: 'err',     text: 'disconnected — AI feature unavailable' }
         : effectiveRemaining === 0
-        ? { type: 'warn',    text: 'rate limited — try again later in an hour or so'       }
-        : { type: 'success', text: 'connected to proxmox cluster'          };
+        ? { type: 'warn',    text: 'rate limited — try again later in an hour or so' }
+        : { type: 'success', text: 'connected to proxmox cluster' };
 
       const afterLines = [{ type: 'gap' }];
 
@@ -204,12 +201,42 @@ export default function TerminalCard() {
     setLines(prev => [...prev, ...newLines]);
   }
 
+  function handleKeyDown(e) {
+    const cmds = cmdHistory.current;
+    if (!cmds.length) return;
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const next = historyIndex.current < cmds.length - 1
+        ? historyIndex.current + 1
+        : cmds.length - 1;
+      historyIndex.current = next;
+      setInput(cmds[cmds.length - 1 - next]);
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (historyIndex.current <= 0) {
+        historyIndex.current = -1;
+        setInput('');
+      } else {
+        historyIndex.current -= 1;
+        setInput(cmds[cmds.length - 1 - historyIndex.current]);
+      }
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
 
     const cmd = input.trim();
     if (!cmd || loading || !connected || !remaining || remaining === 0) return;
+
+    // Push to command history and reset index
+    cmdHistory.current = [...cmdHistory.current, cmd];
+    historyIndex.current = -1;
+
     setInput('');
 
     append([{ type: 'gap' }, { type: 'cmd', text: `$ ${cmd}` }]);
@@ -234,7 +261,6 @@ export default function TerminalCard() {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({
           messages: newHistory,
-          // Read fresh from sessionStorage so cleared sessions are reflected immediately
           sessionRemaining: Math.max(0, SESSION_LIMIT - parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10)),
         }),
       });
@@ -247,7 +273,6 @@ export default function TerminalCard() {
       }
 
       if (res.ok && data.reply) {
-        // Decrement session count
         const used = parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10) + 1;
         sessionStorage.setItem(SESSION_KEY, String(used));
         setSessionLeft(Math.max(0, SESSION_LIMIT - used));
@@ -342,7 +367,8 @@ export default function TerminalCard() {
             ref={inputRef}
             type="text"
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={e => { historyIndex.current = -1; setInput(e.target.value); }}
+            onKeyDown={handleKeyDown}
             disabled={isDisabled}
             placeholder={placeholder}
             autoComplete="off"
