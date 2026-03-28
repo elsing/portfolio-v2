@@ -170,7 +170,7 @@ export default function TerminalCard() {
       const statusLine = !ok
         ? { type: 'err',     text: 'disconnected — AI feature unavailable' }
         : effectiveRemaining === 0
-        ? { type: 'warn',    text: 'rate limited — try again in an hour or so'       }
+        ? { type: 'warn',    text: 'rate limited — try again later in an hour or so'       }
         : { type: 'success', text: 'connected to proxmox cluster'          };
 
       const afterLines = [{ type: 'gap' }];
@@ -282,7 +282,7 @@ export default function TerminalCard() {
     : connected === false
     ? 'offline for now — check back soon.'
     : remaining === 0
-    ? 'rate limited — try again in an hour or so'
+    ? 'rate limited — try again in an hour or so.'
     : loading
     ? 'running...'
     : 'ask me anything about elliot';
@@ -349,8 +349,7 @@ export default function TerminalCard() {
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck={false}
-            className="flex-1 min-w-0 bg-transparent border-none outline-none font-mono text-site-text caret-site-green placeholder:text-site-muted"
-            style={{ fontSize: '16px' }}
+            className="flex-1 min-w-0 bg-transparent border-none outline-none font-mono text-[16px] md:text-xs text-site-text caret-site-green placeholder:text-site-muted"
           />
         </form>
       </div>
