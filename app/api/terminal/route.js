@@ -52,8 +52,12 @@ function buildPrompt(remaining) {
 }
 
 async function queryOllama(messages, remaining) {
-  const url   = process.env.OLLAMA_URL   ?? 'http://localhost:11434';
-  const model = process.env.OLLAMA_MODEL ?? 'phi3.5';
+  const url   = process.env.OLLAMA_URL;
+  const model = process.env.OLLAMA_MODEL;
+
+  if (!url || !model) {
+    throw new Error('OLLAMA_URL or OLLAMA_MODEL is not set');
+  }
 
   const res = await fetch(`${url}/api/chat`, {
     method:  'POST',

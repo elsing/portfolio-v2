@@ -2,8 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-const RATE_LIMIT = 20;
-const WARN_AT    = 3;
+const WARN_AT = 3;
 
 const BOOT_OUTROS = [
   "ask me anything about elliot — i know him well.",
@@ -52,7 +51,7 @@ export default function TerminalCard() {
   const [input,     setInput]     = useState('');
   const [loading,   setLoading]   = useState(false);
   const [history,   setHistory]   = useState([]);
-  const [remaining, setRemaining] = useState(RATE_LIMIT);
+  const [remaining, setRemaining] = useState(null);
   const [connected, setConnected] = useState(null);
 
   const outputRef = useRef(null);
@@ -74,7 +73,7 @@ export default function TerminalCard() {
         const health    = await healthRes.json();
         const rem       = await remainingRes.json();
         const ok        = health.connected;
-        const remNum    = rem.remaining ?? RATE_LIMIT;
+        const remNum    = rem.remaining ?? 0;
 
         setConnected(ok);
         setRemaining(remNum);
@@ -93,8 +92,10 @@ export default function TerminalCard() {
           bootLines.push(
             { type: 'out', text: pickRandom(BOOT_OUTROS) },
           );
+        } else if (ok && remNum === 0) {
+          bootLines.push({ type: 'warn', text: 'rate limited — try again in an hour or so.' });
         } else {
-          bootLines.push({ type: 'warn', text: 'the cluster will be back. probably.' });
+          bootLines.push({ type: 'warn', text: 'offline for now — check back soon.' });
         }
 
         setLines(bootLines);
