@@ -53,17 +53,50 @@ export default function Hero() {
      * overflow-hidden on the section clips the vertical stripes
      * exactly to the hero height. They cannot bleed downward.
      */
-    <section className="w-full max-w-[1440px] mx-auto">
+    <section className="w-full max-w-[1440px] mx-auto overflow-hidden relative">
 
+      {/*
+        Vertical stripe texture — replaces the grid.
+        Simple repeating linear-gradient of alternating transparent/subtle
+        bands. Much cleaner than the grid intersection Moire effect,
+        and clips cleanly to the section.
+        Right half only, fades out toward the left via a mask.
+      */}
+      <div
+        aria-hidden="true"
+        className="absolute top-0 right-0 h-full pointer-events-none"
+        style={{
+          width: '55%',
+          backgroundImage: `repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 60px,
+            rgba(255,255,255,0.018) 60px,
+            rgba(255,255,255,0.018) 61px
+          )`,
+          maskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
+        }}
+      />
 
+      {/* Concentric rings — purely decorative */}
+      {[
+        { size: 520, top: -80,  right: -100 },
+        { size: 300, top:  40,  right: 120  },
+        { size: 120, top: 180,  right: 270, opacity: 0.5 },
+      ].map(({ size, top, right, opacity = 1 }) => (
+        <div key={size} aria-hidden="true" className="absolute rounded-full pointer-events-none"
+          style={{ width: size, height: size, top, right, opacity, border: '1px solid rgba(61,219,114,0.055)' }}
+        />
+      ))}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-10 lg:gap-14 px-6 lg:px-10 pt-16 relative">
 
         {/* ── Left ──────────────────────────────────────── */}
-        <div className="relative z-10 min-w-0 pb-16 lg:pb-18">
+        <div className="relative z-10 min-w-0 pb-16 lg:pb-18 flex flex-col items-center text-center lg:items-start lg:text-left">
 
-          <div className="flex items-center gap-3 font-mono text-[13px] text-site-muted-hi tracking-[0.1em] mb-7">
-            <span className="w-5 h-px bg-site-muted-hi inline-block" />
+          <div className="flex items-center gap-3 font-mono text-[13px] text-site-muted-hi tracking-[0.1em] mb-7 justify-center lg:justify-start">
+            <span className="hidden lg:inline-block w-5 h-px bg-site-muted-hi" />
             it engineer &amp; self-hoster
           </div>
 
@@ -90,7 +123,7 @@ export default function Hero() {
             )}
           </div>
 
-          <p className="text-[18px] text-site-muted-hi leading-[1.85] font-light max-w-[500px] mb-9">
+          <p className="text-[18px] text-site-muted-hi leading-[1.85] font-light w-full max-w-[500px] mb-9">
             Building and breaking things since before it was a job title.
             I run a{' '}
             <em className="text-site-text not-italic">private cloud at home</em>

@@ -5,13 +5,12 @@ import { useState, useRef, useEffect } from 'react';
 const WARN_AT = 3;
 
 const BOOT_OUTROS = [
-  "ask me anything about elliot — i know him well.",
-  "curious about elliot's work or background? go for it.",
-  "ask about his experience, skills, or homelab. i'm all yours.",
-  "want to know if elliot's a good fit? ask away.",
-  "i can tell you about elliot's work, projects, or how to get in touch.",
-  "ask me about elliot — work history, skills, the lot.",
+  "try asking about elliot's experience or skills",
+  "ask about the homelab, his background, or how to get in touch",
+  "curious if elliot's the right fit? ask away",
   "not sure where to start? try: what does elliot do?",
+  "ask anything — work history, skills, projects",
+  "find out more about elliot — just type a question",
 ];
 
 function pickRandom(arr) {
@@ -26,6 +25,12 @@ function Line({ line }) {
     <div className="flex gap-2 font-mono text-xs leading-7 flex-wrap">
       <span className="text-site-green shrink-0">portfolio@prod-ai-01 ~</span>
       <span className="text-site-text">{line.text}</span>
+    </div>
+  );
+
+  if (line.type === 'hint') return (
+    <div className="font-mono text-xs leading-7 pl-4 text-site-muted italic opacity-70">
+      {line.text}
     </div>
   );
 
@@ -90,7 +95,7 @@ export default function TerminalCard() {
 
         if (ok && remNum > 0) {
           bootLines.push(
-            { type: 'out', text: pickRandom(BOOT_OUTROS) },
+            { type: 'hint', text: pickRandom(BOOT_OUTROS) },
           );
         } else if (ok && remNum === 0) {
           bootLines.push({ type: 'warn', text: 'rate limited — try again in an hour or so.' });
