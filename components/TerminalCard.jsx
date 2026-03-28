@@ -33,6 +33,12 @@ function Line({ line }) {
     </div>
   );
 
+  if (line.type === 'status') return (
+    <div className="font-mono text-xs leading-7 pl-4 text-site-muted">
+      {line.text}<span className="term-checking-dots" />
+    </div>
+  );
+
   if (line.type === 'typing') return (
     <TypewriterLine text={line.text} onScroll={line.onScroll} onDone={line.onDone} />
   );
@@ -124,6 +130,12 @@ export default function TerminalCard() {
   // Boot sequence
   useEffect(() => {
     async function boot() {
+      // Show the header line immediately, with a status-checking placeholder
+      setLines([
+        { type: 'out',    text: 'folio-ai — singer.systems' },
+        { type: 'status', text: 'checking connection' },
+      ]);
+
       // Fetch IP remaining first — fast, no Ollama dependency
       let remNum = IP_LIMIT;
       try {
@@ -154,25 +166,27 @@ export default function TerminalCard() {
 
       setConnected(ok);
 
-      const bootLines = [
-        { type: 'out', text: 'folio-ai — singer.systems' },
-        !ok
-          ? { type: 'err',     text: 'disconnected — AI feature unavailable' }
-          : effectiveRemaining === 0
-          ? { type: 'warn',    text: 'rate limited — try again later.'       }
-          : { type: 'success', text: 'connected to proxmox cluster'          },
-        { type: 'gap' },
-      ];
+      // Replace the status line with the real result, then append the rest
+      const statusLine = !ok
+        ? { type: 'err',     text: 'disconnected — AI feature unavailable' }
+        : effectiveRemaining === 0
+        ? { type: 'warn',    text: 'rate limited — try again later in an hour or so'       }
+        : { type: 'success', text: 'connected to proxmox cluster'          };
+
+      const afterLines = [{ type: 'gap' }];
 
       if (ok && effectiveRemaining > 0) {
-        bootLines.push({ type: 'hint', text: pickRandom(BOOT_OUTROS) });
-      } else if (ok && effectiveRemaining === 0) {
-        bootLines.push({ type: 'warn', text: 'rate limited — try again in an hour or so.' });
-      } else {
-        bootLines.push({ type: 'warn', text: 'offline for now — check back soon.' });
+        afterLines.push({ type: 'hint', text: pickRandom(BOOT_OUTROS) });
+      } else if (!ok) {
+        afterLines.push({ type: 'warn', text: 'offline for now — check back soon.' });
       }
 
-      setLines(bootLines);
+      setLines([
+        { type: 'out', text: 'folio-ai — singer.systems' },
+        statusLine,
+        ...afterLines,
+      ]);
+
       setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100);
     }
 
@@ -227,7 +241,7 @@ export default function TerminalCard() {
       const data = await res.json();
 
       if (res.status === 429) {
-        append([{ type: 'err', text: 'rate limited — try again in an hour or so.' }]);
+        append([{ type: 'err', text: 'rate limited — try again in an hour or so' }]);
         setIpRemaining(0);
         return;
       }
@@ -259,14 +273,16 @@ export default function TerminalCard() {
 
   const showCounter   = mounted && ipRemaining !== null && remaining !== null && remaining <= WARN_AT && remaining > 0;
   const counterColour = remaining === 1 ? 'text-site-red' : 'text-site-amber';
-  const isDisabled    = loading || connected === false || (mounted && remaining === 0);
+  const isDisabled    = loading || connected === null || connected === false || (mounted && remaining === 0);
 
   const placeholder = !mounted
     ? 'ask me anything about elliot'
+    : connected === null
+    ? 'checking connection...'
     : connected === false
     ? 'offline for now — check back soon.'
     : remaining === 0
-    ? 'rate limited — try again in an hour or so.'
+    ? 'rate limited — try again in an hour or so'
     : loading
     ? 'running...'
     : 'ask me anything about elliot';
