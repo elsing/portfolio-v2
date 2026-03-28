@@ -21,11 +21,24 @@
   --sans:        'DM Sans', sans-serif;
 }
 
+/*
+ * Moire vertical stripe texture — site-wide, every page.
+ * 1px line every 8px. At 1080p this produces ~135 stripes across
+ * the viewport — fine enough to create a fabric-like texture rather
+ * than visible lines.
+ */
 html, body {
   background-color: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 16px;
+  font-size: 17px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 3px,
+    rgba(255, 255, 255, 0.015) 3px,
+    rgba(255, 255, 255, 0.015) 4px
+  );
 }
 
 /* ── Cursor blink ─────────────────────────────── */
@@ -37,20 +50,20 @@ html, body {
 
 /* ── Status dot pulse ─────────────────────────── */
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
+  0%, 100% { opacity: 1;   }
   50%       { opacity: 0.3; }
 }
 .pulse-dot { animation: pulse-dot 2.5s ease-in-out infinite; }
 
 /* ── Experience item hover ────────────────────── */
 .exp-item {
-  padding: 16px 0 16px 16px;
+  padding: 18px 0 18px 18px;
   border-left: 2px solid var(--border);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   transition: border-color 0.2s;
 }
 
-/* ── Post link — landing page slide animation ─── */
+/* ── Post link ────────────────────────────────── */
 .post-link {
   display: flex;
   gap: 16px;
@@ -60,7 +73,7 @@ html, body {
 }
 .post-link:hover { transform: translateX(4px); }
 .post-link-title {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.45;
   margin-bottom: 4px;
   color: var(--muted-hi);
@@ -73,100 +86,61 @@ html, body {
 .btn-ghost:hover   { color: var(--text); border-color: rgba(255,255,255,0.22); }
 .footer-link:hover { color: var(--muted-hi); }
 
-/* ── Blog listing row hover ───────────────────── */
+/* ── Blog listing hover ───────────────────────── */
 .blog-row { transition: background 0.15s; cursor: pointer; }
 .blog-row:hover { background: rgba(255,255,255,0.02); }
 .blog-row-title { transition: color 0.15s; color: var(--text); }
 .blog-row:hover .blog-row-title { color: var(--green); }
 
-/* ── Blog prose reading styles ────────────────── */
+/* ── Blog prose ───────────────────────────────── */
 .prose-content {
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.85;
   color: var(--muted-hi);
   font-weight: 300;
   max-width: 680px;
 }
-.prose-content h2 {
-  font-family: var(--mono);
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--text);
-  margin: 2.8rem 0 1.1rem;
-  letter-spacing: -0.01em;
-}
-.prose-content h3 {
-  font-family: var(--mono);
-  font-size: 17px;
-  font-weight: 500;
-  color: var(--text);
-  margin: 2.2rem 0 0.8rem;
-}
-.prose-content p  { margin-bottom: 1.3rem; }
-.prose-content em { color: var(--text); font-style: normal; }
-.prose-content strong { color: var(--text); font-weight: 500; }
-.prose-content a {
-  color: var(--green);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(61,219,114,0.3);
-  transition: border-color 0.15s;
-}
-.prose-content a:hover { border-bottom-color: var(--green); }
-.prose-content code {
-  font-family: var(--mono);
-  font-size: 13px;
-  background: var(--bg2);
-  border: 1px solid var(--border-mid);
-  border-radius: 3px;
-  padding: 2px 6px;
-  color: var(--green);
-}
-.prose-content pre {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 22px 26px;
-  overflow-x: auto;
-  margin: 1.8rem 0;
-}
-.prose-content pre code {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 13px;
-  color: var(--muted-hi);
-}
-.prose-content blockquote {
-  border-left: 2px solid var(--green);
-  border-radius: 0;
-  padding-left: 18px;
-  margin: 1.8rem 0;
-  color: var(--muted-hi);
-  font-style: italic;
-}
+.prose-content h2                 { font-family: var(--mono); font-size: 23px; font-weight: 500; color: var(--text); margin: 2.8rem 0 1.1rem; letter-spacing: -0.01em; }
+.prose-content h3                 { font-family: var(--mono); font-size: 18px; font-weight: 500; color: var(--text); margin: 2.2rem 0 0.8rem; }
+.prose-content p                  { margin-bottom: 1.3rem; }
+.prose-content em                 { color: var(--text); font-style: normal; }
+.prose-content strong             { color: var(--text); font-weight: 500; }
+.prose-content a                  { color: var(--green); text-decoration: none; border-bottom: 1px solid rgba(61,219,114,0.3); transition: border-color 0.15s; }
+.prose-content a:hover            { border-bottom-color: var(--green); }
+.prose-content code               { font-family: var(--mono); font-size: 14px; background: var(--bg2); border: 1px solid var(--border-mid); border-radius: 3px; padding: 2px 6px; color: var(--green); }
+.prose-content pre                { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 22px 26px; overflow-x: auto; margin: 1.8rem 0; }
+.prose-content pre code           { background: none; border: none; padding: 0; font-size: 14px; color: var(--muted-hi); }
+.prose-content blockquote         { border-left: 2px solid var(--green); border-radius: 0; padding-left: 18px; margin: 1.8rem 0; color: var(--muted-hi); font-style: italic; }
 .prose-content ul,
-.prose-content ol  { padding-left: 1.5rem; margin-bottom: 1.3rem; }
-.prose-content li  { margin-bottom: 0.45rem; }
-.prose-content hr  { border: none; border-top: 1px solid var(--border); margin: 2.8rem 0; }
-.prose-content table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  margin: 1.8rem 0;
-}
-.prose-content th {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--muted-hi);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border-mid);
-  text-align: left;
-}
-.prose-content td {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  color: var(--muted-hi);
+.prose-content ol                 { padding-left: 1.5rem; margin-bottom: 1.3rem; }
+.prose-content li                 { margin-bottom: 0.45rem; }
+.prose-content hr                 { border: none; border-top: 1px solid var(--border); margin: 2.8rem 0; }
+.prose-content table              { width: 100%; border-collapse: collapse; font-size: 15px; margin: 1.8rem 0; }
+.prose-content th                 { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--muted-hi); text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 12px; border-bottom: 1px solid var(--border-mid); text-align: left; }
+.prose-content td                 { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--muted-hi); }
+
+/* ── Terminal ─────────────────────────────────── */
+@keyframes term-pulse  { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes term-blink  { 0%,100%{opacity:1} 50%{opacity:0}   }
+@keyframes term-fadein { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:translateY(0)} }
+
+.term-pulse  { animation: term-pulse  2.5s ease-in-out infinite; }
+.term-blink  { animation: term-blink  1s   step-end    infinite; }
+.term-fadein { animation: term-fadein 0.4s ease         forwards; }
+
+.terminal-output                    { scrollbar-width: none; -ms-overflow-style: none; }
+.terminal-output::-webkit-scrollbar { display: none; }
+
+/* ── Terminal tilt ::before ───────────────────── */
+.terminal-wrap { position: relative; }
+.terminal-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(61,219,114,0.15);
+  border-radius: 8px;
+  transform: rotate(2deg);
+  transform-origin: center center;
+  pointer-events: none;
+  z-index: 0;
 }

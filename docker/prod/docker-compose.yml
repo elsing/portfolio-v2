@@ -1,15 +1,15 @@
 name: portfolio-v2-prod
 
 services:
-  portfolio-v2-prod:
-    container_name: portfolio-v2-prod
+  portfolio-v3-prod:
+    container_name: portfolio-v3-prod
     ports:
       - 3000:3000
-    image: portfolio-v2-prod:latest
+    image: portfolio-v3-prod:latest
     networks:
       traefik_proxy:
         aliases:
-          - portfolio-v2-prod
+          - portfolio-v3-prod
     restart: unless-stopped
 
 networks:

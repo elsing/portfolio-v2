@@ -1,24 +1,16 @@
-import { Lora } from "next/font/google";
-import "./globals.css";
+import './globals.css';
 
 export const metadata = {
-  title: "Elliot Singer's Portfolio",
-  description: "Elliot Singer's Portfolio",
+  title:       "Elliot Singer — IT Engineer & Self-Hoster",
+  description: "Portfolio, blog and homelab docs for Elliot Singer.",
 };
-
-const lora = Lora({
-  subsets: ["latin"],
-});
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${lora.className} antialiased`}
-      >
+      <body className="antialiased">
         {children}
       </body>
     </html>
   );
 }
-

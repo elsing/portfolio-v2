@@ -1,24 +1,16 @@
-import Link from 'next/link';
+import Link        from 'next/link';
+import TerminalCard from '@/components/TerminalCard';
 
-// Professional badges
 const PRO_BADGES = [
   { label: '2nd line engineer',        style: 'green' },
   { label: 'junior devops ↗ incoming', style: 'amber' },
 ];
 
-// Personality badges — light, fun, fills the row naturally
 const PERSONALITY_BADGES = [
-  { label: 'motorbiker', icon: true  },
-  { label: 'air-breather'            },
-  { label: 'global retriever energy' },
-  { label: 'night owl'               },
+  { label: 'motorbiker',              icon: true },
+  { label: 'golden retriever energy'             },
+  { label: 'troubleshooter'                      },
 ];
-
-const STYLES = {
-  green: { color: 'var(--green)', borderColor: 'rgba(61,219,114,0.28)',  bg: 'rgba(61,219,114,0.06)'  },
-  amber: { color: 'var(--amber)', borderColor: 'rgba(212,168,75,0.25)', bg: 'rgba(212,168,75,0.05)'  },
-  dim:   { color: 'var(--muted-hi)', borderColor: 'var(--border-mid)',  bg: 'transparent'             },
-};
 
 const GHOST_LINKS = [
   { href: '/blog',                                label: './blog'    },
@@ -26,21 +18,23 @@ const GHOST_LINKS = [
   { href: 'https://linkedin.com/in/elliotsinger', label: 'linkedin', external: true },
 ];
 
-const BADGE_BASE = {
-  fontFamily:    'var(--mono)',
-  fontSize:      '12px',
-  letterSpacing: '0.04em',
-  padding:       '5px 12px',
-  borderRadius:  '4px',
-  border:        '1px solid',
-  display:       'inline-flex',
-  alignItems:    'center',
-  gap:           '6px',
+const BADGE_VARIANTS = {
+  green: 'text-site-green border-site-green/30 bg-site-green/5',
+  amber: 'text-site-amber border-site-amber/25 bg-site-amber/5',
+  dim:   'text-site-muted-hi border-white/10 bg-transparent',
 };
+
+function Badge({ label, variant = 'dim' }) {
+  return (
+    <span className={`inline-flex items-center gap-1.5 font-mono text-[13px] tracking-[0.04em] px-3 py-[5px] rounded border ${BADGE_VARIANTS[variant]}`}>
+      {label}
+    </span>
+  );
+}
 
 function MotoBadge() {
   return (
-    <span style={{ ...BADGE_BASE, borderColor: 'var(--border-mid)', color: 'var(--muted-hi)' }}>
+    <span className="inline-flex items-center gap-1.5 font-mono text-[13px] tracking-[0.04em] px-3 py-[5px] rounded border border-white/10 text-site-muted-hi">
       <svg width="18" height="11" viewBox="0 0 32 18" fill="none" aria-hidden="true">
         <circle cx="5.5"  cy="13.5" r="3.5" stroke="#7d9a88" strokeWidth="1.4" />
         <circle cx="26.5" cy="13.5" r="3.5" stroke="#7d9a88" strokeWidth="1.4" />
@@ -56,115 +50,80 @@ function MotoBadge() {
 export default function Hero() {
   return (
     /*
-     * Width is intentionally uncapped on the right — the section expands
-     * to fill the viewport with padding rather than a hard maxWidth cutoff.
-     * The bio text has its own maxWidth so it doesn't become a wall of text.
+     * overflow-hidden on the section clips the vertical stripes
+     * exactly to the hero height. They cannot bleed downward.
      */
-    <section className="relative" style={{ zIndex: 2, padding: '68px 6vw 0 40px' }}>
+    <section className="w-full max-w-[1440px] mx-auto">
 
-      {/* Eyebrow */}
-      <div className="flex items-center gap-3" style={{
-        fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--muted-hi)',
-        letterSpacing: '0.1em', marginBottom: '28px',
-      }}>
-        <span style={{ width: '20px', height: '1px', background: 'var(--muted-hi)', display: 'inline-block' }} />
-        it engineer &amp; self-hoster
-      </div>
 
-      {/* Name */}
-      <h1 style={{
-        fontFamily:    'var(--mono)',
-        fontSize:      '72px',
-        fontWeight:    '500',
-        color:         '#fff',
-        letterSpacing: '-0.025em',
-        lineHeight:    '1.05',
-        marginBottom:  '28px',
-      }}>
-        Elliot Singer
-        <span className="cursor-blink inline-block" style={{
-          width: '4px', height: '66px', background: 'var(--green)',
-          marginLeft: '5px', verticalAlign: 'bottom',
-        }} />
-      </h1>
 
-      {/* Pro badges row */}
-      <div className="flex flex-wrap gap-2" style={{ marginBottom: '10px' }}>
-        {PRO_BADGES.map(({ label, style }) => (
-          <span key={label} style={{
-            ...BADGE_BASE,
-            color:       STYLES[style].color,
-            borderColor: STYLES[style].borderColor,
-            background:  STYLES[style].bg,
-          }}>
-            {label}
-          </span>
-        ))}
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-10 lg:gap-14 px-6 lg:px-10 pt-16 relative">
 
-      {/* Personality badges row */}
-      <div className="flex flex-wrap gap-2" style={{ marginBottom: '32px' }}>
-        {PERSONALITY_BADGES.map(({ label, icon }) =>
-          icon ? (
-            <MotoBadge key={label} />
-          ) : (
-            <span key={label} style={{
-              ...BADGE_BASE,
-              color:       'var(--muted-hi)',
-              borderColor: 'var(--border-mid)',
-              background:  'transparent',
-            }}>
-              {label}
-            </span>
-          )
-        )}
-      </div>
+        {/* ── Left ──────────────────────────────────────── */}
+        <div className="relative z-10 min-w-0 pb-16 lg:pb-18">
 
-      {/* Bio — wider, larger text */}
-      <p style={{
-        fontSize:     '17px',
-        color:        'var(--muted-hi)',
-        lineHeight:   '1.85',
-        maxWidth:     '660px',
-        marginBottom: '40px',
-        fontWeight:   '300',
-      }}>
-        Building and breaking things since before it was a job title.
-        I run a{' '}
-        <em style={{ color: 'var(--text)', fontStyle: 'normal' }}>private cloud at home</em>
-        {' '}— 3 Proxmox nodes, 3 VPS, 20+ servers, hyper-converged and highly available.
-        Here I write about the things that{' '}
-        <em style={{ color: 'var(--text)', fontStyle: 'normal' }}>broke at 2am</em>
-        , and how I fixed them.
-      </p>
+          <div className="flex items-center gap-3 font-mono text-[13px] text-site-muted-hi tracking-[0.1em] mb-7">
+            <span className="w-5 h-px bg-site-muted-hi inline-block" />
+            it engineer &amp; self-hoster
+          </div>
 
-      {/* CTAs */}
-      <div className="flex flex-wrap items-center gap-3" style={{ marginBottom: '80px' }}>
-        <Link href="/homelab" style={{
-          fontFamily: 'var(--mono)', fontSize: '13px', padding: '11px 24px',
-          background: 'var(--green)', color: '#111',
-          border: '1px solid transparent', borderRadius: '5px',
-          fontWeight: '500', letterSpacing: '0.04em',
-          textDecoration: 'none', transition: 'opacity 0.15s', display: 'inline-block',
-        }}>
-          ./homelab →
-        </Link>
+          <h1
+            className="font-mono font-medium text-white leading-[1.05] tracking-[-0.025em] mb-7"
+            style={{ fontSize: 'clamp(40px, 6vw, 72px)' }}
+          >
+            Elliot Singer
+            <span
+              className="cursor-blink inline-block bg-site-green ml-1 align-bottom"
+              style={{ width: '4px', height: 'clamp(36px, 5.5vw, 66px)' }}
+            />
+          </h1>
 
-        {GHOST_LINKS.map(({ href, label, external }) => (
-          <Link key={label} href={href}
-            target={external ? '_blank' : undefined}
-            rel={external ? 'noopener noreferrer' : undefined}
-            className="btn-ghost"
-            style={{
-              fontFamily: 'var(--mono)', fontSize: '13px', padding: '10px 20px',
-              background: 'transparent', color: 'var(--muted-hi)',
-              border: '1px solid var(--border-mid)', borderRadius: '5px',
-              letterSpacing: '0.04em', textDecoration: 'none',
-              transition: 'color 0.15s, border-color 0.15s', display: 'inline-block',
-            }}>
-            {label}
-          </Link>
-        ))}
+          <div className="flex flex-wrap gap-2 mb-2.5">
+            {PRO_BADGES.map(({ label, style }) => (
+              <Badge key={label} label={label} variant={style} />
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-2 mb-8">
+            {PERSONALITY_BADGES.map(({ label, icon }) =>
+              icon ? <MotoBadge key={label} /> : <Badge key={label} label={label} />
+            )}
+          </div>
+
+          <p className="text-[18px] text-site-muted-hi leading-[1.85] font-light max-w-[500px] mb-9">
+            Building and breaking things since before it was a job title.
+            I run a{' '}
+            <em className="text-site-text not-italic">private cloud at home</em>
+            {' '}— 3 Proxmox nodes, 3 VPS, 20+ servers, hyper-converged and highly available.
+            Here I write about the things that{' '}
+            <em className="text-site-text not-italic">broke at 2am</em>
+            , and how I fixed them.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/homelab"
+              className="font-mono text-[14px] font-medium tracking-[0.04em] px-6 py-[11px] rounded-[5px] bg-site-green text-bg no-underline transition-opacity hover:opacity-85"
+            >
+              ./homelab →
+            </Link>
+            {GHOST_LINKS.map(({ href, label, external }) => (
+              <Link key={label} href={href}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener noreferrer' : undefined}
+                className="btn-ghost font-mono text-[14px] tracking-[0.04em] px-5 py-[10px] rounded-[5px] border border-white/10 text-site-muted-hi no-underline transition-all"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Right: terminal ───────────────────────────── */}
+        <div className="relative z-10 min-w-0 py-10 lg:py-16">
+          <TerminalCard />
+        </div>
+
       </div>
     </section>
   );

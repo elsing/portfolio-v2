@@ -7,10 +7,10 @@ on:
       - staging
     # Only run on changes to the relevant code
     paths:
-      - portfolio/app
-      - portfolio/components
-      - portfolio/docker
-      - portfolio/content
+      - 'app/**'
+      - 'components/**'
+      - 'docker/**'
+      - 'content/**'
   workflow_dispatch:
 
 jobs:

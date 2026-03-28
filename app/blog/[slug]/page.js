@@ -27,12 +27,10 @@ function TagPill({ tag }) {
   );
 }
 
-// Tells Next.js which slugs to pre-render at build time
 export async function generateStaticParams() {
   return getAllPosts().map(p => ({ slug: p.slug }));
 }
 
-// Dynamic metadata per post
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
@@ -55,10 +53,10 @@ export default async function PostPage({ params }) {
   const next        = all[idx - 1] ?? null;
 
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh', maxWidth: '1440px', margin: '0 auto' }}>
       <Nav />
 
-      {/* Back breadcrumb */}
+      {/* breadcrumb */}
       <div style={{ padding: '20px 40px', borderBottom: '1px solid var(--border)' }}>
         <Link href="/blog" style={{
           fontFamily: 'var(--mono)', fontSize: '12px', color: 'var(--muted)',
@@ -71,7 +69,7 @@ export default async function PostPage({ params }) {
         </Link>
       </div>
 
-      {/* Post header */}
+      {/* header */}
       <div style={{ padding: '48px 40px 40px', borderBottom: '1px solid var(--border)', maxWidth: '780px' }}>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
           {post.tags.map(t => <TagPill key={t} tag={t} />)}
@@ -98,11 +96,11 @@ export default async function PostPage({ params }) {
           <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'var(--muted)', display: 'inline-block' }} />
           <span>{post.readMin} min read</span>
           <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'var(--muted)', display: 'inline-block' }} />
-          <span>elliot singer</span>
+          <span>{post.author}</span>
         </div>
       </div>
 
-      {/* Post body */}
+      {/* body */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: '0' }}>
         <div style={{ padding: '48px 40px 64px', borderRight: '1px solid var(--border)' }}>
           <div
@@ -111,7 +109,6 @@ export default async function PostPage({ params }) {
           />
         </div>
 
-        {/* Sticky-ish sidebar */}
         <aside style={{ padding: '28px 24px' }}>
           <div style={{ position: 'sticky', top: '24px' }}>
 
@@ -125,7 +122,7 @@ export default async function PostPage({ params }) {
               </div>
             </div>
 
-            {/* Post info */}
+            {/* info */}
             <div style={{ marginBottom: '28px' }}>
               <div style={{ fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 info <span style={{ flex: 1, height: '1px', background: 'var(--border)', display: 'block' }} />
@@ -162,7 +159,7 @@ export default async function PostPage({ params }) {
         </aside>
       </div>
 
-      {/* Prev / Next navigation */}
+      {/* prev / next */}
       <div style={{
         borderTop: '1px solid var(--border)', padding: '24px 40px',
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px',
