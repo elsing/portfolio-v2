@@ -99,3 +99,6 @@ Yes, this is 2x speed...
 Well, in the context of light development anyway...
 
 But seriously, I have been so utterly impressed with using Claude. I absolutely did not foresee my site looking like this in less than 48 hours. Especially with all the features it has, Claude really allowed me to channel my creative energy into this project, and not have to get lost in the weeds of programming and finding out how to do this. Although my knowledge did catch Claude off guard a few times. I accept that stepping away from the technical side is not always a good thing. Claude cannot deploy this onto my network for me; that was all me. But it would certainly give it a good go.
+
+Ciao for now,
+Elliot
