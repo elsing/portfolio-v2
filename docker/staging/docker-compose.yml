@@ -7,9 +7,9 @@ services:
       - 3001:3000
     image: portfolio-v3-staging:latest
     env_file:
-      - /opt/portfolio-v2/env/.env.prod
+      - /opt/portfolio-v3/env/.env.prod
     volumes:
-      - /opt/portfolio-v2/env/system-prompt.txt:/app/system-prompt.txt:ro
+      - /opt/portfolio-v3/env/system-prompt.txt:/app/system-prompt.txt:ro
     networks:
       traefik_proxy:
         aliases:

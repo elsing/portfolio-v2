@@ -8,7 +8,8 @@
 export const revalidate = 30;
 
 export async function GET() {
-  const url = process.env.OLLAMA_URL ?? 'http://localhost:11434';
+  const url = process.env.OLLAMA_URL;
+  if (!url) return Response.json({ connected: false, error: 'OLLAMA_URL is not configured' });
 
   try {
     const res = await fetch(`${url}/api/tags`, {

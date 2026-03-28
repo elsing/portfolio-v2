@@ -1,4 +1,4 @@
-name: portfolio-v2-prod
+name: portfolio-v3-prod
 
 services:
   portfolio-v3-prod:

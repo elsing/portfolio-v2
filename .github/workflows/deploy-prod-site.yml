@@ -1,5 +1,5 @@
 
-name: "Portoflio V2 - Production Deployment"
+name: "Portoflio V3 - Production Deployment"
 
 on:
   push:
@@ -20,6 +20,10 @@ jobs:
       # Download repo
       - name: Checkout code
         uses: actions/checkout@v3
+
+      # Lint before building
+      - name: Lint
+        run: docker run --rm -v ${{ github.workspace }}:/app -w /app node:24-alpine sh -c "npm ci --quiet && npm run lint"
 
       # Build the app and make a Docker image of it
       - name: Build Docker image

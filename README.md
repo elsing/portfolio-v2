@@ -1,19 +1,63 @@
-# Portfolio Site
+# singer.systems
 
-Created to replace my older portfolio site.
+Personal portfolio, blog, and homelab showcase. Live at [singer.systems](https://singer.systems).
 
-The idea eventually is to have projects and other bits I have done uploaded to it.
+Built with Next.js App Router, Tailwind CSS, and deployed via Docker + Traefik on my own infrastructure.
 
-## Automation
+## Stack
 
-As part of my DevOps journey, I want to get GitHub Actions setup for this site, to automate deployment to my servers (and eventually Kubernetes cluster).
+- **Framework:** Next.js 16 (App Router, JS — no TypeScript)
+- **Styling:** Tailwind CSS + CSS custom properties
+- **Fonts:** JetBrains Mono + DM Sans
+- **Blog:** Markdown files via `gray-matter` + `marked`
+- **AI terminal:** Ollama (self-hosted LLM)
+- **Infra:** Docker, Traefik, GitHub Actions CI/CD, Cloudflare CDN
 
-Currently, this uses GitHub Actions in combination with a runner that is hosted on my infrastructure.
+## Local development
 
-Once a push goes out to  the "app", "components" or "docker" directories in the main branch, the workflow will redownload the latest copy of the repo and build the NextJS app. Once built, this is packaged into a Docker image on the host (the runner has the docker.sock passed through) and then using the Docker compose image, the app is run in the production environment. Then my reverse proxy (Traefik) handles the resolution of [the portfolio page](https://singer.systems).
+```bash
+cp .env.example .env.local
+# fill in your values
 
-A staging branch is also configured, so I can make changes and not affect the main site. This is accessible under a different URL.
+npm install
+npm run dev
+```
 
-## Design
+App runs at `http://localhost:3000`.
 
-Using [Khroma](khroma.co), I was able to get some colour schemes I liked. From there, I have used Figma to mock up a design that is pleasing to me. I am sure it will further develop over time.
+## Environment variables
+
+See [.env.example](.env.example) for all required variables. The AI terminal and status widget won't function without `OLLAMA_URL` and `KUMA_URL` set respectively — everything else on the site works fine without them.
+
+## Adding a blog post
+
+Drop a `.md` file into `content/blog/` with the following frontmatter:
+
+```markdown
+---
+title: My Post Title
+date: 2026-03-28
+author: Elliot Singer
+tags: [devops, docker]
+excerpt: A short summary shown in the listing.
+---
+
+Post content here...
+```
+
+Posts appear automatically — no config needed. Set `priority: 1` to pin a post to the top.
+
+## CI/CD
+
+Two branches, two environments:
+
+- `staging` → staging environment (separate URL, used for testing changes)
+- `main` → production at singer.systems
+
+On push to either branch, GitHub Actions (self-hosted runner on my infrastructure) lints the code, builds a Docker image, and deploys it via Docker Compose. Traefik handles routing and TLS.
+
+Workflows trigger on changes to `app/`, `components/`, `docker/`, or `content/`.
+
+## Infrastructure
+
+The full homelab stack powering this site is documented on the [homelab page](https://singer.systems/homelab) — Proxmox cluster, WireGuard mesh, OPNsense firewalls, Azure Traffic Manager failover, the works.
