@@ -1,9 +1,9 @@
 ---
 title: "Dynamic routing across on-prem and cloud: my setup explained"
 date: "2026-02-18"
-tags: ["traefik", "networking"]
+tags: ["testing", "sweet"]
 excerpt: "OSPF over WireGuard, Traefik dynamic config, and why I ended up with three VPS nodes talking to each other across two continents."
-priortiy: 3
+priortiy: 2
 ---
 
 ## The problem with static routes

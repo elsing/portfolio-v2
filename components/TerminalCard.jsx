@@ -2,10 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-const IP_LIMIT      = 25;  // server-enforced, shared across all visitors from same IP
-const SESSION_LIMIT = 6;   // client-enforced, resets when tab closes
+const IP_LIMIT      = 25;
+const SESSION_LIMIT = 6;
 const SESSION_KEY   = 'folio_session_count';
-const WARN_AT       = 3;   // show counter when this many remain
+const WARN_AT       = 3;
+const BOOT_RETRIES  = 4;
+const BOOT_DELAY    = 2000;
 
 const BOOT_OUTROS = [
   "try asking about elliot's experience or skills",
@@ -60,7 +62,6 @@ function TypewriterLine({ text, colour = 'text-site-muted-hi', onDone, onScroll 
   useEffect(() => {
     if (!text) { onDone?.(); return; }
     let i = 0;
-    // Speed: ~18ms per char feels natural — fast enough not to frustrate
     const timer = setInterval(() => {
       i++;
       setDisplayed(text.slice(0, i));
@@ -83,92 +84,106 @@ function TypewriterLine({ text, colour = 'text-site-muted-hi', onDone, onScroll 
   );
 }
 
-
 function FadeIn({ children, className = '' }) {
   return <div className={`term-fadein ${className}`}>{children}</div>;
 }
 
 export default function TerminalCard() {
-  const [mounted,   setMounted]   = useState(false);
-  const [lines,     setLines]     = useState([]);
-  const [input,     setInput]     = useState('');
-  const [loading,   setLoading]   = useState(false);
-  const [history,   setHistory]   = useState([]);
-  const [sessionLeft, setSessionLeft] = useState(() => {
-    if (typeof window === 'undefined') return SESSION_LIMIT;
-    const stored = parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10);
-    return Math.max(0, SESSION_LIMIT - stored);
-  });
+  const [mounted,     setMounted]     = useState(false);
+  const [lines,       setLines]       = useState([]);
+  const [input,       setInput]       = useState('');
+  const [loading,     setLoading]     = useState(false);
+  const [history,     setHistory]     = useState([]);
+  const [connected,   setConnected]   = useState(null);
   const [ipRemaining, setIpRemaining] = useState(null);
+  const [sessionLeft, setSessionLeft] = useState(() =>
+    typeof window === 'undefined'
+      ? SESSION_LIMIT
+      : Math.max(0, SESSION_LIMIT - parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10))
+  );
 
-  // Effective remaining = lower of session and IP limits
-  // On server, remaining is unknown — use null until mounted
-  // This prevents hydration mismatch from sessionStorage reads
+  // null until mounted — prevents hydration mismatch from sessionStorage
   const remaining = !mounted
     ? null
     : ipRemaining === null
     ? sessionLeft
     : Math.min(sessionLeft, ipRemaining);
-  const [connected, setConnected] = useState(null);
 
-  const outputRef  = useRef(null);
-  const inputRef   = useRef(null);
+  const outputRef = useRef(null);
+  const inputRef  = useRef(null);
 
+  // Mark as mounted (client only)
   useEffect(() => { setMounted(true); }, []);
 
+  // Auto-scroll on new lines
   useEffect(() => {
     const el = outputRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [lines]);
 
+  // Boot sequence
   useEffect(() => {
     async function boot() {
+      // Fetch IP remaining first — fast, no Ollama dependency
+      let remNum = IP_LIMIT;
       try {
-        const [healthRes, remainingRes] = await Promise.all([
-          fetch('/api/terminal/health'),
-          fetch('/api/terminal/remaining'),
-        ]);
-
-        const health    = await healthRes.json();
-        const rem       = await remainingRes.json();
-        const ok        = health.connected;
-        const remNum    = rem.remaining ?? IP_LIMIT;
+        const remRes = await fetch('/api/terminal/remaining');
+        const rem    = await remRes.json();
+        remNum = rem.remaining ?? IP_LIMIT;
         setIpRemaining(remNum);
+      } catch {}
 
-        setConnected(ok);
+      // Session count
+      const sessionUsed        = parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10);
+      const sessLeft           = Math.max(0, SESSION_LIMIT - sessionUsed);
+      const effectiveRemaining = Math.min(sessLeft, remNum);
 
-        const bootLines = [
-          { type: 'out', text: 'folio-ai — singer.systems' },
-          !ok
-            ? { type: 'err',     text: 'disconnected — AI feature unavailable'                   }
-            : remNum === 0
-            ? { type: 'warn',    text: 'rate limited — try again later.'  }
-            : { type: 'success', text: 'connected to proxmox cluster' },
-          { type: 'gap' },
-        ];
-
-        if (ok && remNum > 0) {
-          bootLines.push(
-            { type: 'hint', text: pickRandom(BOOT_OUTROS) },
-          );
-        } else if (ok && remNum === 0) {
-          bootLines.push({ type: 'warn', text: 'rate limited — try again in an hour or so.' });
-        } else {
-          bootLines.push({ type: 'warn', text: 'offline for now — check back soon.' });
+      // Retry health — Ollama may still be warming up on container start
+      let ok = false;
+      for (let attempt = 0; attempt < BOOT_RETRIES; attempt++) {
+        try {
+          const res  = await fetch('/api/terminal/health');
+          const data = await res.json();
+          ok = data.connected;
+          if (ok) break;
+        } catch {}
+        if (attempt < BOOT_RETRIES - 1) {
+          await new Promise(r => setTimeout(r, BOOT_DELAY));
         }
-
-        setLines(bootLines);
-      } catch {
-        setConnected(false);
-        setLines([
-          { type: 'out', text: 'folio-ai — singer.systems'              },
-          { type: 'err', text: 'disconnected — could not reach backend' },
-        ]);
-      } finally {
-        setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100);
       }
+
+      setConnected(ok);
+
+      const bootLines = [
+        { type: 'out', text: 'folio-ai — singer.systems' },
+        !ok
+          ? { type: 'err',     text: 'disconnected — AI feature unavailable' }
+          : effectiveRemaining === 0
+          ? { type: 'warn',    text: 'rate limited — try again later.'       }
+          : { type: 'success', text: 'connected to proxmox cluster'          },
+        { type: 'gap' },
+      ];
+
+      if (ok && effectiveRemaining > 0) {
+        bootLines.push({ type: 'hint', text: pickRandom(BOOT_OUTROS) });
+      } else if (ok && effectiveRemaining === 0) {
+        bootLines.push({ type: 'warn', text: 'rate limited — try again in an hour or so.' });
+      } else {
+        bootLines.push({ type: 'warn', text: 'offline for now — check back soon.' });
+      }
+
+      setLines(bootLines);
+      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100);
     }
-    boot();
+
+    boot().catch(() => {
+      setConnected(false);
+      setLines([
+        { type: 'out', text: 'folio-ai — singer.systems'              },
+        { type: 'err', text: 'disconnected — could not reach backend' },
+      ]);
+      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100);
+    });
   }, []);
 
   function append(newLines) {
@@ -180,7 +195,7 @@ export default function TerminalCard() {
     e.stopPropagation();
 
     const cmd = input.trim();
-    if (!cmd || loading || !connected || remaining === 0 || remaining === null) return;
+    if (!cmd || loading || !connected || !remaining || remaining === 0) return;
     setInput('');
 
     append([{ type: 'gap' }, { type: 'cmd', text: `$ ${cmd}` }]);
@@ -203,26 +218,32 @@ export default function TerminalCard() {
       const res  = await fetch('/api/terminal', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ messages: newHistory }),
+        body:    JSON.stringify({
+          messages: newHistory,
+          // Read fresh from sessionStorage so cleared sessions are reflected immediately
+          sessionRemaining: Math.max(0, SESSION_LIMIT - parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10)),
+        }),
       });
       const data = await res.json();
 
       if (res.status === 429) {
-        append([{ type: 'err', text: 'rate limited — try again later.' }]);
+        append([{ type: 'err', text: 'rate limited — try again in an hour or so.' }]);
         setIpRemaining(0);
         return;
       }
 
       if (res.ok && data.reply) {
-        const scrollToBottom = () => {
-          const el = outputRef.current;
-          if (el) el.scrollTop = el.scrollHeight;
-        };
         // Decrement session count
         const used = parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10) + 1;
         sessionStorage.setItem(SESSION_KEY, String(used));
         setSessionLeft(Math.max(0, SESSION_LIMIT - used));
+
+        const scrollToBottom = () => {
+          const el = outputRef.current;
+          if (el) el.scrollTop = el.scrollHeight;
+        };
         const focusAfterType = () => inputRef.current?.focus({ preventScroll: true });
+
         append([{ type: 'typing', text: data.reply, onScroll: scrollToBottom, onDone: focusAfterType }]);
         setHistory([...newHistory, { role: 'assistant', content: data.reply }]);
         if (typeof data.remaining === 'number') setIpRemaining(data.remaining);
@@ -236,8 +257,19 @@ export default function TerminalCard() {
     }
   }
 
-  const showCounter   = mounted && remaining <= WARN_AT && remaining > 0;
+  const showCounter   = mounted && ipRemaining !== null && remaining !== null && remaining <= WARN_AT && remaining > 0;
   const counterColour = remaining === 1 ? 'text-site-red' : 'text-site-amber';
+  const isDisabled    = loading || connected === false || (mounted && remaining === 0);
+
+  const placeholder = !mounted
+    ? 'ask me anything about elliot'
+    : connected === false
+    ? 'offline for now — check back soon.'
+    : remaining === 0
+    ? 'rate limited — try again in an hour or so.'
+    : loading
+    ? 'running...'
+    : 'ask me anything about elliot';
 
   return (
     <div className="terminal-wrap">
@@ -254,7 +286,6 @@ export default function TerminalCard() {
             bash — portfolio@prod-ai-01
           </span>
 
-          {/* Message counter in title bar — never overlaps output */}
           {showCounter && (
             <FadeIn>
               <span className={`font-mono text-[10px] tracking-[0.06em] mr-2 ${counterColour}`}>
@@ -286,7 +317,7 @@ export default function TerminalCard() {
         <form
           onSubmit={handleSubmit}
           className={`flex items-center gap-2 px-[18px] py-2.5 pb-3.5 border-t border-white/[0.07] shrink-0 transition-opacity ${
-            connected === false || remaining === 0 ? 'opacity-40' : 'opacity-100'  // remaining null = not yet known, show enabled
+            isDisabled ? 'opacity-40' : 'opacity-100'
           }`}
         >
           <span className="font-mono text-xs text-site-green shrink-0">portfolio@prod-ai-01 ~</span>
@@ -296,14 +327,8 @@ export default function TerminalCard() {
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
-            disabled={loading || connected === false || (mounted && remaining === 0)}
-            placeholder={!mounted
-              ? 'ask me anything about elliot'
-              : !connected && connected !== null ? 'offline for now — check back soon.'
-              : remaining === 0                  ? 'rate limited — try again in an hour or so.'
-              : loading                          ? 'running...'
-              : 'ask me anything about elliot'
-            }
+            disabled={isDisabled}
+            placeholder={placeholder}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"

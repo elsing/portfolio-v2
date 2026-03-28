@@ -4,7 +4,6 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Nav from '@/components/Nav';
 
-const ALL_TAGS = ['proxmox', 'traefik', 'docker', 'networking', 'zabbix', 'devops', 'incident'];
 
 const TAG_COLOURS = {
   proxmox:    { color: '#e8822a', bg: 'rgba(232,130,42,0.1)',  border: 'rgba(232,130,42,0.25)'  },
@@ -34,6 +33,11 @@ export default function BlogClient({ posts }) {
   const [activeTag, setActiveTag] = useState('all');
 
   const pinned  = posts.find(p => p.priority === 1);
+  // Derive tags dynamically from actual posts — sorted alphabetically
+  const ALL_TAGS = useMemo(() =>
+    [...new Set(posts.flatMap(p => p.tags))].sort(),
+  [posts]);
+
   const regular = posts.filter(p => p.priority !== 1);
 
   const filtered = useMemo(() => regular.filter(p => {

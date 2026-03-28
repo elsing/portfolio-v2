@@ -47,11 +47,19 @@ function loadPrompt() {
 
 const SYSTEM_PROMPT = loadPrompt();
 
-function buildPrompt(remaining) {
-  return `${SYSTEM_PROMPT}\n\nThe user has ${remaining} message${remaining === 1 ? '' : 's'} remaining this hour.`;
+function buildPrompt(ipRemaining, sessionRemaining) {
+  // ipRemaining is post-consume (already decremented for this request)
+  // sessionRemaining from client is pre-consume, so subtract 1 to align
+  const sessionAfter = sessionRemaining !== null
+    ? Math.max(0, sessionRemaining - 1)
+    : null;
+  const remaining = sessionAfter !== null
+    ? Math.min(ipRemaining, sessionAfter)
+    : ipRemaining;
+  return `${SYSTEM_PROMPT}\n\nAfter this response, the user has ${remaining} message${remaining === 1 ? '' : 's'} remaining this hour. This is exact. Do not second-guess it.`;
 }
 
-async function queryOllama(messages, remaining) {
+async function queryOllama(messages, ipRemaining, sessionRemaining) {
   const url   = process.env.OLLAMA_URL;
   const model = process.env.OLLAMA_MODEL;
 
@@ -67,7 +75,7 @@ async function queryOllama(messages, remaining) {
       stream:     false,
       keep_alive: -1,
       messages: [
-        { role: 'system', content: buildPrompt(remaining) },
+        { role: 'system', content: buildPrompt(ipRemaining, sessionRemaining) },
         ...messages,
       ],
     }),
@@ -104,6 +112,10 @@ export async function POST(request) {
       return Response.json({ error: 'invalid request' }, { status: 400 });
     }
 
+    const sessionRemaining = typeof body.sessionRemaining === 'number'
+      ? Math.max(0, body.sessionRemaining)
+      : null;
+
     const sanitised = body.messages
       .filter(m => m.role && m.content)
       .slice(-10)
@@ -117,7 +129,7 @@ export async function POST(request) {
 
     let reply;
     try {
-      reply = await queryOllama(sanitised, remainingAfter);
+      reply = await queryOllama(sanitised, remainingAfter, sessionRemaining);
     } catch (err) {
       console.error('[terminal] Ollama error:', err.message);
       reply = 'cluster is having a moment — try again shortly.';
