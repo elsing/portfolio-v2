@@ -13,6 +13,9 @@ const TAG_COLOURS = {
   zabbix:     { color: '#d4a84b', bg: 'rgba(212,168,75,0.1)',  border: 'rgba(212,168,75,0.25)'  },
   devops:     { color: '#3ddb72', bg: 'rgba(61,219,114,0.08)', border: 'rgba(61,219,114,0.25)'  },
   incident:   { color: '#e05050', bg: 'rgba(224,80,80,0.1)',   border: 'rgba(224,80,80,0.25)'   },
+  ai:         { color: '#a78bfa', bg: 'rgba(167,139,250,0.1)', border: 'rgba(167,139,250,0.25)' },
+  portfolio:  { color: '#38bdf8', bg: 'rgba(56,189,248,0.1)',  border: 'rgba(56,189,248,0.25)'  },
+  design:     { color: '#f472b6', bg: 'rgba(244,114,182,0.1)', border: 'rgba(244,114,182,0.25)' },
 };
 
 function TagPill({ tag, small }) {

@@ -7,9 +7,9 @@ const PRO_BADGES = [
 ];
 
 const PERSONALITY_BADGES = [
-  { label: 'motorbiker',              icon: true },
-  { label: 'golden retriever energy'             },
-  { label: 'troubleshooter'                      },
+  { label: 'motorbiker',              icon: true,    colour: '#f472b6' },
+  { label: 'golden retriever energy',                colour: '#fbbf24' },
+  { label: 'troubleshooter',                         colour: '#38bdf8' },
 ];
 
 const GHOST_LINKS = [
@@ -32,31 +32,34 @@ function Badge({ label, variant = 'dim' }) {
   );
 }
 
-function MotoBadge() {
+function PersonalityBadge({ label, icon, colour }) {
+  const style = {
+    color:       colour,
+    borderColor: `${colour}40`,
+    background:  `${colour}0d`,
+  };
   return (
-    <span className="inline-flex items-center gap-1.5 font-mono text-[13px] tracking-[0.04em] px-3 py-[5px] rounded border border-white/10 text-site-muted-hi">
-      <svg width="18" height="11" viewBox="0 0 32 18" fill="none" aria-hidden="true">
-        <circle cx="5.5"  cy="13.5" r="3.5" stroke="#7d9a88" strokeWidth="1.4" />
-        <circle cx="26.5" cy="13.5" r="3.5" stroke="#7d9a88" strokeWidth="1.4" />
-        <path d="M9 13.5 L13 7 L20 7 L24 5 L23 9 L26.5 10" stroke="#7d9a88" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M13 7 L12 10 L22 10 L23 9"               stroke="#7d9a88" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M18 7 L19 4 L22 4 L21 7"                 stroke="#7d9a88" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      motorbiker
+    <span
+      className="inline-flex items-center gap-1.5 font-mono text-[13px] tracking-[0.04em] px-3 py-[5px] rounded border"
+      style={style}
+    >
+      {icon && (
+        <svg width="18" height="11" viewBox="0 0 32 18" fill="none" aria-hidden="true">
+          <circle cx="5.5"  cy="13.5" r="3.5" stroke={colour} strokeWidth="1.4" />
+          <circle cx="26.5" cy="13.5" r="3.5" stroke={colour} strokeWidth="1.4" />
+          <path d="M9 13.5 L13 7 L20 7 L24 5 L23 9 L26.5 10" stroke={colour} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M13 7 L12 10 L22 10 L23 9"               stroke={colour} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M18 7 L19 4 L22 4 L21 7"                 stroke={colour} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+      {label}
     </span>
   );
 }
 
 export default function Hero() {
   return (
-    /*
-     * overflow-hidden on the section clips the vertical stripes
-     * exactly to the hero height. They cannot bleed downward.
-     */
     <section className="w-full max-w-[1440px] mx-auto">
-
-
-
       <div className="grid grid-cols-1 xl:grid-cols-2 items-start gap-4 xl:gap-14 px-6 xl:px-10 pt-10 xl:pt-16 relative">
 
         {/* ── Left ──────────────────────────────────────── */}
@@ -85,9 +88,9 @@ export default function Hero() {
           </div>
 
           <div className="flex flex-wrap gap-2 mb-8 justify-center xl:justify-start">
-            {PERSONALITY_BADGES.map(({ label, icon }) =>
-              icon ? <MotoBadge key={label} /> : <Badge key={label} label={label} />
-            )}
+            {PERSONALITY_BADGES.map(({ label, icon, colour }) => (
+              <PersonalityBadge key={label} label={label} icon={icon} colour={colour} />
+            ))}
           </div>
 
           <p className="text-[18px] text-site-muted-hi leading-[1.85] font-light max-w-[500px] mx-auto xl:mx-0 mb-9">
