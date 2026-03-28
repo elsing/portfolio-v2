@@ -7,18 +7,18 @@ export const metadata = {
 };
 
 const STATS = [
-  { val: '3',    lbl: 'proxmox nodes' },
-  { val: '3',    lbl: 'vps'           },
-  { val: '20+',  lbl: 'servers'       },
-  { val: 'HA',   lbl: 'availability'  },
-  { val: '99%+', lbl: 'uptime'        },
+  { val: '3',       lbl: 'proxmox nodes'  },
+  { val: '3',       lbl: 'vps'            },
+  { val: '20+',     lbl: 'servers'        },
+  { val: '99.76%',  lbl: 'lb uptime'      },
+  { val: '99.61%',  lbl: 'auth uptime'    },
 ];
 
 const DETAIL_CARDS = [
   {
     cls:   'text-[#e8822a]',
     title: 'Cloud edge',
-    items: ['Cloudflare CDN + DNS', 'Azure Traffic Manager 60/40', '2× Nginx load balancers', 'UFW firewalling on all LBs'],
+    items: ['Cloudflare CDN + DNS', 'Azure Traffic Manager 60/40', '2× Traefik load balancers', 'Uptime Kuma on prod-lb-01 (furthest from app network)'],
   },
   {
     cls:   'text-[#9d7fea]',
@@ -28,7 +28,7 @@ const DETAIL_CARDS = [
   {
     cls:   'text-site-green',
     title: 'On-premise compute',
-    items: ['3-node Proxmox VE cluster', 'Ceph hyper-converged storage', 'OPNsense HA (CARP failover)', "Traefik ingress + Let's Encrypt", 'Zabbix + Uptime Kuma'],
+    items: ['3-node Proxmox VE cluster', 'Ceph hyper-converged storage', 'OPNsense HA (CARP failover)', "Traefik ingress + Let's Encrypt", 'Zabbix + 2 proxies + Grafana'],
   },
 ];
 
@@ -55,7 +55,7 @@ export default function HomelabPage() {
           </div>
           <h1 className="font-mono text-[38px] font-medium text-site-text tracking-[-0.02em] mb-2.5">./homelab</h1>
           <p className="text-[17px] text-site-muted-hi font-light max-w-[560px]">
-            A self-hosted hybrid cloud spanning on-premise Proxmox nodes, three VPS, and a WireGuard mesh.
+            A highly-available private hybrid cloud spanning 3 countries and 20+ servers — on-premise Proxmox nodes, three VPS, and a WireGuard mesh holding it all together.
           </p>
         </div>
 
@@ -126,7 +126,7 @@ export default function HomelabPage() {
 
             <rect x="250" y="402" width="400" height="52" rx="4" fill="#1c201e" stroke="rgba(61,219,114,0.25)" strokeWidth="1"/>
             <text x="450" y="423" fontSize="11" fontWeight="500" fill="#e2ede6" textAnchor="middle">Proxmox cluster</text>
-            <text x="450" y="439" fontSize="9"  fill="#4f6359" textAnchor="middle">3 nodes · Ceph · Traefik · Zabbix · Uptime Kuma</text>
+            <text x="450" y="439" fontSize="9"  fill="#4f6359" textAnchor="middle">3 nodes · Ceph · Traefik · Zabbix (2 proxies) · Grafana</text>
 
             {/* Flow lines */}
             <line x1="230" y1="94"  x2="145" y2="162" stroke="#3ddb72" strokeWidth="1.2" strokeDasharray="6 4" strokeOpacity="0.5" className="fg" markerEnd="url(#ag)"/>

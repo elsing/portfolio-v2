@@ -57,10 +57,10 @@ export default function Hero() {
 
 
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 items-start gap-6 xl:gap-14 px-6 xl:px-10 pt-12 xl:pt-16 relative">
+      <div className="grid grid-cols-1 xl:grid-cols-2 items-start gap-4 xl:gap-14 px-6 xl:px-10 pt-10 xl:pt-16 relative">
 
         {/* ── Left ──────────────────────────────────────── */}
-        <div className="relative z-10 min-w-0 pb-6 xl:pb-18 flex flex-col items-center text-center xl:items-start xl:text-left">
+        <div className="relative z-10 min-w-0 pb-2 xl:pb-18 flex flex-col items-center text-center xl:items-start xl:text-left">
 
           <div className="flex items-center gap-3 font-mono text-[13px] text-site-muted-hi tracking-[0.1em] mb-7 justify-center xl:justify-start">
             <span className="hidden xl:inline-block w-5 h-px bg-site-muted-hi" />
@@ -78,29 +78,27 @@ export default function Hero() {
             />
           </h1>
 
-          <div className="flex flex-wrap gap-2 mb-2.5">
+          <div className="flex flex-wrap gap-2 mb-2.5 justify-center xl:justify-start">
             {PRO_BADGES.map(({ label, style }) => (
               <Badge key={label} label={label} variant={style} />
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2 mb-8">
+          <div className="flex flex-wrap gap-2 mb-8 justify-center xl:justify-start">
             {PERSONALITY_BADGES.map(({ label, icon }) =>
               icon ? <MotoBadge key={label} /> : <Badge key={label} label={label} />
             )}
           </div>
 
-          <p className="text-[18px] text-site-muted-hi leading-[1.85] font-light max-w-[500px] mb-9">
-            Building and breaking things since before it was a job title.
+          <p className="text-[18px] text-site-muted-hi leading-[1.85] font-light max-w-[500px] mx-auto xl:mx-0 mb-9">
+            Building and breaking things since before it was my job title.
             I run a{' '}
-            <em className="text-site-text not-italic">private cloud at home</em>
-            {' '}— 3 Proxmox nodes, 3 VPS, 20+ servers, hyper-converged and highly available.
-            Here I write about the things that{' '}
-            <em className="text-site-text not-italic">broke at 2am</em>
-            , and how I fixed them.
+            <em className="text-site-text not-italic">highly-available private hybrid cloud</em>
+            {' '}spanning 3 countries and 20+ servers.
+            Here I write about the things I have done, and other thoughts.
           </p>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center xl:justify-start gap-3">
             <Link
               href="/homelab"
               className="font-mono text-[14px] font-medium tracking-[0.04em] px-6 py-[11px] rounded-[5px] bg-site-green text-bg no-underline transition-opacity hover:opacity-85"

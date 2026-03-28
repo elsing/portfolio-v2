@@ -2,7 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-const WARN_AT = 3;
+const IP_LIMIT      = 25;  // server-enforced, shared across all visitors from same IP
+const SESSION_LIMIT = 6;   // client-enforced, resets when tab closes
+const SESSION_KEY   = 'folio_session_count';
+const WARN_AT       = 3;   // show counter when this many remain
 
 const BOOT_OUTROS = [
   "try asking about elliot's experience or skills",
@@ -29,7 +32,7 @@ function Line({ line }) {
   );
 
   if (line.type === 'typing') return (
-    <TypewriterLine text={line.text} />
+    <TypewriterLine text={line.text} onScroll={line.onScroll} onDone={line.onDone} />
   );
 
   if (line.type === 'hint') return (
@@ -51,7 +54,7 @@ function Line({ line }) {
   );
 }
 
-function TypewriterLine({ text, colour = 'text-site-muted-hi', onDone }) {
+function TypewriterLine({ text, colour = 'text-site-muted-hi', onDone, onScroll }) {
   const [displayed, setDisplayed] = useState('');
 
   useEffect(() => {
@@ -61,6 +64,7 @@ function TypewriterLine({ text, colour = 'text-site-muted-hi', onDone }) {
     const timer = setInterval(() => {
       i++;
       setDisplayed(text.slice(0, i));
+      onScroll?.();
       if (i >= text.length) {
         clearInterval(timer);
         onDone?.();
@@ -85,15 +89,32 @@ function FadeIn({ children, className = '' }) {
 }
 
 export default function TerminalCard() {
+  const [mounted,   setMounted]   = useState(false);
   const [lines,     setLines]     = useState([]);
   const [input,     setInput]     = useState('');
   const [loading,   setLoading]   = useState(false);
   const [history,   setHistory]   = useState([]);
-  const [remaining, setRemaining] = useState(null);
+  const [sessionLeft, setSessionLeft] = useState(() => {
+    if (typeof window === 'undefined') return SESSION_LIMIT;
+    const stored = parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10);
+    return Math.max(0, SESSION_LIMIT - stored);
+  });
+  const [ipRemaining, setIpRemaining] = useState(null);
+
+  // Effective remaining = lower of session and IP limits
+  // On server, remaining is unknown — use null until mounted
+  // This prevents hydration mismatch from sessionStorage reads
+  const remaining = !mounted
+    ? null
+    : ipRemaining === null
+    ? sessionLeft
+    : Math.min(sessionLeft, ipRemaining);
   const [connected, setConnected] = useState(null);
 
-  const outputRef = useRef(null);
-  const inputRef  = useRef(null);
+  const outputRef  = useRef(null);
+  const inputRef   = useRef(null);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const el = outputRef.current;
@@ -111,10 +132,10 @@ export default function TerminalCard() {
         const health    = await healthRes.json();
         const rem       = await remainingRes.json();
         const ok        = health.connected;
-        const remNum    = rem.remaining ?? 0;
+        const remNum    = rem.remaining ?? IP_LIMIT;
+        setIpRemaining(remNum);
 
         setConnected(ok);
-        setRemaining(remNum);
 
         const bootLines = [
           { type: 'out', text: 'folio-ai — singer.systems' },
@@ -159,7 +180,7 @@ export default function TerminalCard() {
     e.stopPropagation();
 
     const cmd = input.trim();
-    if (!cmd || loading || !connected || remaining === 0) return;
+    if (!cmd || loading || !connected || remaining === 0 || remaining === null) return;
     setInput('');
 
     append([{ type: 'gap' }, { type: 'cmd', text: `$ ${cmd}` }]);
@@ -188,14 +209,23 @@ export default function TerminalCard() {
 
       if (res.status === 429) {
         append([{ type: 'err', text: 'rate limited — try again later.' }]);
-        setRemaining(0);
+        setIpRemaining(0);
         return;
       }
 
       if (res.ok && data.reply) {
-        append([{ type: 'typing', text: data.reply }]);
+        const scrollToBottom = () => {
+          const el = outputRef.current;
+          if (el) el.scrollTop = el.scrollHeight;
+        };
+        // Decrement session count
+        const used = parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10) + 1;
+        sessionStorage.setItem(SESSION_KEY, String(used));
+        setSessionLeft(Math.max(0, SESSION_LIMIT - used));
+        const focusAfterType = () => inputRef.current?.focus({ preventScroll: true });
+        append([{ type: 'typing', text: data.reply, onScroll: scrollToBottom, onDone: focusAfterType }]);
         setHistory([...newHistory, { role: 'assistant', content: data.reply }]);
-        if (typeof data.remaining === 'number') setRemaining(data.remaining);
+        if (typeof data.remaining === 'number') setIpRemaining(data.remaining);
       } else {
         append([{ type: 'err', text: data.error ?? 'no response' }]);
       }
@@ -203,11 +233,10 @@ export default function TerminalCard() {
       append([{ type: 'err', text: 'connection failed — is the mesh up?' }]);
     } finally {
       setLoading(false);
-      inputRef.current?.focus({ preventScroll: true });
     }
   }
 
-  const showCounter   = remaining <= WARN_AT && remaining > 0;
+  const showCounter   = mounted && remaining <= WARN_AT && remaining > 0;
   const counterColour = remaining === 1 ? 'text-site-red' : 'text-site-amber';
 
   return (
@@ -257,7 +286,7 @@ export default function TerminalCard() {
         <form
           onSubmit={handleSubmit}
           className={`flex items-center gap-2 px-[18px] py-2.5 pb-3.5 border-t border-white/[0.07] shrink-0 transition-opacity ${
-            connected === false || remaining === 0 ? 'opacity-40' : 'opacity-100'
+            connected === false || remaining === 0 ? 'opacity-40' : 'opacity-100'  // remaining null = not yet known, show enabled
           }`}
         >
           <span className="font-mono text-xs text-site-green shrink-0">portfolio@prod-ai-01 ~</span>
@@ -267,12 +296,13 @@ export default function TerminalCard() {
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
-            disabled={loading || connected === false || remaining === 0}
-            placeholder={
-              connected === false ? 'offline'
-              : remaining === 0   ? 'rate limited — try again later'
-              : loading           ? ''
-              : 'type a command...'
+            disabled={loading || connected === false || (mounted && remaining === 0)}
+            placeholder={!mounted
+              ? 'ask me anything about elliot'
+              : !connected && connected !== null ? 'offline for now — check back soon.'
+              : remaining === 0                  ? 'rate limited — try again in an hour or so.'
+              : loading                          ? 'running...'
+              : 'ask me anything about elliot'
             }
             autoComplete="off"
             autoCorrect="off"
