@@ -6,6 +6,14 @@ export default {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    screens: {
+      xs:  '400px',   // status text visible above 400px
+      sm:  '640px',
+      md:  '768px',
+      lg:  '1024px',
+      xl:  '1280px',
+      '2xl': '1536px',
+    },
     extend: {
       colors: {
         bg:              "#161a18",
@@ -14,8 +22,6 @@ export default {
         "site-green":    "#3ddb72",
         "site-amber":    "#d4a84b",
         "site-blue":     "#5b9fd4",
-        "site-purple":   "#9d7fea",
-        "site-orange":   "#e8822a",
         "site-text":     "#e2ede6",
         "site-muted":    "#4f6359",
         "site-muted-hi": "#7d9a88",
@@ -27,9 +33,6 @@ export default {
       },
       spacing: {
         18: "4.5rem",
-      },
-      fontSize: {
-        "2xs": "0.625rem", // 10px
       },
     },
   },
