@@ -13,6 +13,9 @@ RUN npm ci
 # Copy rest of the source code
 COPY . .
 
+# Lint
+RUN npm run lint
+
 # Build the app
 RUN npm run build
 

@@ -23,10 +23,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Lint before building
-      - name: Lint
-        run: docker run --rm -v ${{ github.workspace }}:/app -w /app node:24-alpine sh -c "npm install --quiet && npm run lint"
-
       # Build the app and make a Docker image of it
       - name: Build Docker image
         run: docker build -t portfolio-v3-staging:latest -f docker/staging/Dockerfile .
