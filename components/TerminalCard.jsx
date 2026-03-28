@@ -28,6 +28,10 @@ function Line({ line }) {
     </div>
   );
 
+  if (line.type === 'typing') return (
+    <TypewriterLine text={line.text} />
+  );
+
   if (line.type === 'hint') return (
     <div className="font-mono text-xs leading-7 pl-4 text-site-muted italic opacity-70">
       {line.text}
@@ -46,6 +50,35 @@ function Line({ line }) {
     </div>
   );
 }
+
+function TypewriterLine({ text, colour = 'text-site-muted-hi', onDone }) {
+  const [displayed, setDisplayed] = useState('');
+
+  useEffect(() => {
+    if (!text) { onDone?.(); return; }
+    let i = 0;
+    // Speed: ~18ms per char feels natural — fast enough not to frustrate
+    const timer = setInterval(() => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      if (i >= text.length) {
+        clearInterval(timer);
+        onDone?.();
+      }
+    }, 18);
+    return () => clearInterval(timer);
+  }, [text]);
+
+  return (
+    <div className={`font-mono text-xs leading-7 pl-4 ${colour}`}>
+      {displayed}
+      {displayed.length < text.length && (
+        <span className="term-blink inline-block w-1.5 h-3 bg-current align-middle ml-px opacity-70" />
+      )}
+    </div>
+  );
+}
+
 
 function FadeIn({ children, className = '' }) {
   return <div className={`term-fadein ${className}`}>{children}</div>;
@@ -160,7 +193,7 @@ export default function TerminalCard() {
       }
 
       if (res.ok && data.reply) {
-        append([{ type: 'out', text: data.reply }]);
+        append([{ type: 'typing', text: data.reply }]);
         setHistory([...newHistory, { role: 'assistant', content: data.reply }]);
         if (typeof data.remaining === 'number') setRemaining(data.remaining);
       } else {

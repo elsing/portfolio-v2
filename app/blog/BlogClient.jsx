@@ -93,7 +93,7 @@ export default function BlogClient({ posts }) {
         </div>
 
         {/* Content */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px]">
           <div style={{ borderRight: '1px solid var(--border)' }}>
 
             {/* Pinned */}
@@ -152,13 +152,13 @@ export default function BlogClient({ posts }) {
             )}
           </div>
 
-          {/* Sidebar */}
-          <aside style={{ padding: '28px 24px' }}>
+          {/* Sidebar — above posts on mobile, right column on desktop */}
+          <aside className="order-first lg:order-none border-b lg:border-b-0 border-white/[0.07]" style={{ padding: '20px 24px 24px' }}>
             <div style={{ marginBottom: '28px' }}>
               <div style={{ fontFamily: 'var(--mono)', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 stats <span style={{ flex: 1, height: '1px', background: 'var(--border)', display: 'block' }} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div className="grid grid-cols-4 lg:grid-cols-2 gap-2">
                 {[
                   { val: posts.length,    lbl: 'posts'    },
                   { val: `${totalMin}m`,  lbl: 'reading'  },

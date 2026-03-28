@@ -1,8 +1,8 @@
-import { notFound }       from 'next/navigation';
+import { notFound }      from 'next/navigation';
 import { getPostBySlug, getAllPosts, formatDate } from '@/lib/posts';
-import { markdownToHtml }  from '@/lib/markdownToHtml';
-import Nav                 from '@/components/Nav';
-import Link                from 'next/link';
+import { markdownToHtml } from '@/lib/markdownToHtml';
+import Nav                from '@/components/Nav';
+import Link               from 'next/link';
 
 const TAG_COLOURS = {
   proxmox:    { color: '#e8822a', bg: 'rgba(232,130,42,0.1)',  border: 'rgba(232,130,42,0.25)'  },
@@ -17,13 +17,19 @@ const TAG_COLOURS = {
 function TagPill({ tag }) {
   const c = TAG_COLOURS[tag] ?? { color: 'var(--muted-hi)', bg: 'transparent', border: 'var(--border-mid)' };
   return (
-    <span style={{
-      fontFamily: 'var(--mono)', fontSize: '11px', letterSpacing: '0.06em',
-      textTransform: 'uppercase', padding: '3px 10px', borderRadius: '3px',
-      color: c.color, background: c.bg, border: `1px solid ${c.border}`,
-    }}>
+    <span className="font-mono text-[11px] tracking-[0.06em] uppercase px-2.5 py-0.5 rounded-sm border"
+      style={{ color: c.color, background: c.bg, borderColor: c.border }}>
       {tag}
     </span>
+  );
+}
+
+function SidebarLabel({ children }) {
+  return (
+    <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.12em] uppercase text-site-muted mb-3">
+      {children}
+      <span className="flex-1 h-px bg-white/[0.07]" />
+    </div>
   );
 }
 
@@ -47,145 +53,137 @@ export default async function PostPage({ params }) {
   if (!post) notFound();
 
   const contentHtml = markdownToHtml(post.content);
-  const all         = getAllPosts();
-  const idx         = all.findIndex(p => p.slug === post.slug);
-  const prev        = all[idx + 1] ?? null;
-  const next        = all[idx - 1] ?? null;
+  const all  = getAllPosts();
+  const idx  = all.findIndex(p => p.slug === post.slug);
+  const prev = all[idx + 1] ?? null;
+  const next = all[idx - 1] ?? null;
 
   return (
-    <div style={{ minHeight: '100vh', maxWidth: '1440px', margin: '0 auto' }}>
+    <div className="min-h-screen">
       <Nav />
 
-      {/* breadcrumb */}
-      <div style={{ padding: '20px 40px', borderBottom: '1px solid var(--border)' }}>
-        <Link href="/blog" style={{
-          fontFamily: 'var(--mono)', fontSize: '12px', color: 'var(--muted)',
-          textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px',
-          transition: 'color 0.15s',
-        }}
-          className="hover:text-[var(--muted-hi)]"
-        >
-          ← ./blog
-        </Link>
-      </div>
+      <div className="max-w-[1440px] mx-auto">
 
-      {/* header */}
-      <div style={{ padding: '48px 40px 40px', borderBottom: '1px solid var(--border)', maxWidth: '780px' }}>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
-          {post.tags.map(t => <TagPill key={t} tag={t} />)}
-          {post.priority === 1 && (
-            <span style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--green)', padding: '3px 10px', borderRadius: '3px', background: 'rgba(61,219,114,0.07)', border: '1px solid rgba(61,219,114,0.25)' }}>
-              pinned
-            </span>
-          )}
+        {/* Breadcrumb */}
+        <div className="px-10 py-5 border-b border-white/[0.07]">
+          <Link href="/blog"
+            className="font-mono text-[12px] text-site-muted no-underline inline-flex items-center gap-1.5 hover:text-site-muted-hi transition-colors">
+            ← ./blog
+          </Link>
         </div>
 
-        <h1 style={{
-          fontFamily: 'var(--mono)', fontSize: '32px', fontWeight: '500',
-          color: '#fff', lineHeight: '1.25', letterSpacing: '-0.02em', marginBottom: '16px',
-        }}>
-          {post.title}
-        </h1>
-
-        <p style={{ fontSize: '17px', color: 'var(--muted-hi)', lineHeight: '1.7', fontWeight: '300', marginBottom: '24px', maxWidth: '620px' }}>
-          {post.excerpt}
-        </p>
-
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center', fontFamily: 'var(--mono)', fontSize: '12px', color: 'var(--muted)' }}>
-          <span>{formatDate(post.date)}</span>
-          <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'var(--muted)', display: 'inline-block' }} />
-          <span>{post.readMin} min read</span>
-          <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'var(--muted)', display: 'inline-block' }} />
-          <span>{post.author}</span>
-        </div>
-      </div>
-
-      {/* body */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: '0' }}>
-        <div style={{ padding: '48px 40px 64px', borderRight: '1px solid var(--border)' }}>
-          <div
-            className="prose-content"
-            dangerouslySetInnerHTML={{ __html: contentHtml }}
-          />
-        </div>
-
-        <aside style={{ padding: '28px 24px' }}>
-          <div style={{ position: 'sticky', top: '24px' }}>
-
-            {/* Tags */}
-            <div style={{ marginBottom: '28px' }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                tags <span style={{ flex: 1, height: '1px', background: 'var(--border)', display: 'block' }} />
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {post.tags.map(t => <TagPill key={t} tag={t} />)}
-              </div>
-            </div>
-
-            {/* info */}
-            <div style={{ marginBottom: '28px' }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                info <span style={{ flex: 1, height: '1px', background: 'var(--border)', display: 'block' }} />
-              </div>
-              {[
-                { lbl: 'published', val: formatDate(post.date) },
-                { lbl: 'read time', val: `${post.readMin} min` },
-              ].map(({ lbl, val }) => (
-                <div key={lbl} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--muted)' }}>{lbl}</span>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--muted-hi)' }}>{val}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* More posts */}
-            <div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                more posts <span style={{ flex: 1, height: '1px', background: 'var(--border)', display: 'block' }} />
-              </div>
-              {[prev, next].filter(Boolean).map(p => (
-                <Link key={p.slug} href={`/blog/${p.slug}`} style={{ textDecoration: 'none', display: 'block', marginBottom: '12px' }}>
-                  <p style={{ fontSize: '13px', color: 'var(--muted-hi)', lineHeight: '1.4', marginBottom: '2px', transition: 'color 0.15s' }}
-                    className="hover:text-[var(--text)]">{p.title}</p>
-                  <p style={{ fontFamily: 'var(--mono)', fontSize: '10px', color: 'var(--muted)' }}>{p.readMin} min</p>
-                </Link>
-              ))}
-              <Link href="/blog" style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--muted)', textDecoration: 'none', display: 'inline-block', marginTop: '8px', transition: 'color 0.15s' }}
-                className="hover:text-[var(--muted-hi)]">
-                ← all posts
-              </Link>
-            </div>
+        {/* Post header */}
+        <div className="px-10 pt-12 pb-10 border-b border-white/[0.07] max-w-[780px]">
+          <div className="flex gap-2 flex-wrap mb-5">
+            {post.tags.map(t => <TagPill key={t} tag={t} />)}
+            {post.priority === 1 && (
+              <span className="font-mono text-[11px] text-site-green px-2.5 py-0.5 rounded-sm border border-site-green/25 bg-site-green/5">
+                pinned
+              </span>
+            )}
           </div>
-        </aside>
-      </div>
 
-      {/* prev / next */}
-      <div style={{
-        borderTop: '1px solid var(--border)', padding: '24px 40px',
-        display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px',
-      }}>
-        {prev ? (
-          <Link href={`/blog/${prev.slug}`} style={{ textDecoration: 'none' }}>
-            <p style={{ fontFamily: 'var(--mono)', fontSize: '10px', color: 'var(--muted)', marginBottom: '6px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>← older</p>
-            <p style={{ fontSize: '14px', color: 'var(--muted-hi)', transition: 'color 0.15s' }} className="hover:text-[var(--text)]">{prev.title}</p>
-          </Link>
-        ) : <div />}
-        {next ? (
-          <Link href={`/blog/${next.slug}`} style={{ textDecoration: 'none', textAlign: 'right' }}>
-            <p style={{ fontFamily: 'var(--mono)', fontSize: '10px', color: 'var(--muted)', marginBottom: '6px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>newer →</p>
-            <p style={{ fontSize: '14px', color: 'var(--muted-hi)', transition: 'color 0.15s' }} className="hover:text-[var(--text)]">{next.title}</p>
-          </Link>
-        ) : <div />}
-      </div>
+          <h1 className="font-mono text-[32px] font-medium text-white leading-[1.25] tracking-[-0.02em] mb-4">
+            {post.title}
+          </h1>
 
-      <footer style={{ borderTop: '1px solid var(--border)', padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--muted)' }}>© {new Date().getFullYear()} elliot singer · singer.systems</span>
-        <div style={{ display: 'flex', gap: '20px' }}>
-          {[{ href: '/', label: './home' }, { href: '/blog', label: './blog' }, { href: '/homelab', label: './homelab' }].map(({ href, label }) => (
-            <a key={label} href={href} className="footer-link" style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--muted)', textDecoration: 'none', transition: 'color 0.15s' }}>{label}</a>
-          ))}
+          <p className="text-[17px] text-site-muted-hi leading-[1.7] font-light mb-6 max-w-[620px]">
+            {post.excerpt}
+          </p>
+
+          <div className="flex gap-5 items-center font-mono text-[12px] text-site-muted flex-wrap">
+            <span>{formatDate(post.date)}</span>
+            <span className="w-1 h-1 rounded-full bg-site-muted inline-block" />
+            <span>{post.readMin} min read</span>
+            <span className="w-1 h-1 rounded-full bg-site-muted inline-block" />
+            <span>{post.author}</span>
+          </div>
         </div>
-      </footer>
+
+        {/* Post body */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_220px]">
+
+          <div className="px-10 py-12 pb-16 border-b lg:border-b-0 lg:border-r border-white/[0.07]">
+            <div className="prose-content" dangerouslySetInnerHTML={{ __html: contentHtml }} />
+          </div>
+
+          {/* Sidebar */}
+          <aside className="px-6 py-7">
+            <div className="lg:sticky lg:top-6 space-y-7">
+
+              {/* Tags */}
+              <div>
+                <SidebarLabel>tags</SidebarLabel>
+                <div className="flex flex-wrap gap-1.5">
+                  {post.tags.map(t => <TagPill key={t} tag={t} />)}
+                </div>
+              </div>
+
+              {/* Info */}
+              <div>
+                <SidebarLabel>info</SidebarLabel>
+                {[
+                  { lbl: 'published', val: formatDate(post.date) },
+                  { lbl: 'read time', val: `${post.readMin} min` },
+                ].map(({ lbl, val }) => (
+                  <div key={lbl} className="flex justify-between py-1.5 border-b border-white/[0.07]">
+                    <span className="font-mono text-[11px] text-site-muted">{lbl}</span>
+                    <span className="font-mono text-[11px] text-site-muted-hi">{val}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* More posts */}
+              {(prev || next) && (
+                <div>
+                  <SidebarLabel>more posts</SidebarLabel>
+                  {[prev, next].filter(Boolean).map(p => (
+                    <Link key={p.slug} href={`/blog/${p.slug}`}
+                      className="block mb-3 no-underline group">
+                      <p className="text-[13px] text-site-muted-hi leading-snug mb-0.5 group-hover:text-site-text transition-colors">{p.title}</p>
+                      <p className="font-mono text-[10px] text-site-muted">{p.readMin} min</p>
+                    </Link>
+                  ))}
+                  <Link href="/blog"
+                    className="font-mono text-[11px] text-site-muted no-underline hover:text-site-muted-hi transition-colors mt-2 inline-block">
+                    ← all posts
+                  </Link>
+                </div>
+              )}
+
+            </div>
+          </aside>
+        </div>
+
+        {/* Prev / Next */}
+        <div className="border-t border-white/[0.07] px-10 py-6 grid grid-cols-2 gap-5">
+          {prev ? (
+            <Link href={`/blog/${prev.slug}`} className="no-underline group">
+              <p className="font-mono text-[10px] text-site-muted mb-1.5 tracking-[0.08em] uppercase">← older</p>
+              <p className="text-[14px] text-site-muted-hi group-hover:text-site-text transition-colors">{prev.title}</p>
+            </Link>
+          ) : <div />}
+          {next ? (
+            <Link href={`/blog/${next.slug}`} className="no-underline group text-right">
+              <p className="font-mono text-[10px] text-site-muted mb-1.5 tracking-[0.08em] uppercase">newer →</p>
+              <p className="text-[14px] text-site-muted-hi group-hover:text-site-text transition-colors">{next.title}</p>
+            </Link>
+          ) : <div />}
+        </div>
+
+        {/* Footer */}
+        <footer className="border-t border-white/[0.07] px-10 py-4 flex justify-between items-center flex-wrap gap-3">
+          <span className="font-mono text-[12px] text-site-muted">
+            © {new Date().getFullYear()} elliot singer · singer.systems
+          </span>
+          <div className="flex gap-5">
+            {[{href:'/',label:'./home'},{href:'/blog',label:'./blog'},{href:'/homelab',label:'./homelab'}].map(({href,label})=>(
+              <a key={label} href={href} className="footer-link font-mono text-[12px] text-site-muted no-underline">{label}</a>
+            ))}
+          </div>
+        </footer>
+
+      </div>
     </div>
   );
 }

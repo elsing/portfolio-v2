@@ -22,16 +22,21 @@
 }
 
 /*
- * Moire vertical stripe texture — site-wide, every page.
- * 1px line every 8px. At 1080p this produces ~135 stripes across
- * the viewport — fine enough to create a fabric-like texture rather
- * than visible lines.
+ * Moire vertical stripe texture — site-wide, on body.
+ * Repeating 1px lines every 72px. Subtle at opacity 0.03,
+ * creates a gentle texture without a grid pattern.
+ * Runs the full height of every page automatically.
  */
-html, body {
+html {
+  overflow-x: hidden;
+}
+
+body {
   background-color: var(--bg);
   color: var(--text);
   font-family: var(--sans);
   font-size: 17px;
+  overflow-x: hidden;
   background-image: repeating-linear-gradient(
     90deg,
     transparent,
