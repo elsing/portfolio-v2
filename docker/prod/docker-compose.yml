@@ -6,6 +6,10 @@ services:
     ports:
       - 3000:3000
     image: portfolio-v3-prod:latest
+    env_file:
+      - /opt/portfolio/env/.env.prod
+    volumes:
+      - /opt/portfolio/env/system-prompt.txt:/app/system-prompt.txt:ro
     networks:
       traefik_proxy:
         aliases:
