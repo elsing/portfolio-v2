@@ -2,6 +2,7 @@ import './globals.css';
 import DecryptLoader           from '@/components/DecryptLoader';
 import KonamiCode              from '@/components/KonamiCode';
 import CursorTrail             from '@/components/CursorTrail';
+import PageTransition          from '@/components/PageTransition';
 import { TerminalProvider }    from '@/components/TerminalContext';
 
 export const metadata = {
@@ -15,7 +16,9 @@ export default function RootLayout({ children }) {
       <body className="antialiased">
         <TerminalProvider>
           <DecryptLoader />
-          {children}
+          <PageTransition>
+            {children}
+          </PageTransition>
           <KonamiCode />
           <CursorTrail />
         </TerminalProvider>

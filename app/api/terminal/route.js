@@ -112,9 +112,9 @@ export async function POST(request) {
       return Response.json({ error: 'invalid request' }, { status: 400 });
     }
 
-    // Reject if any single message exceeds 60 chars
+    // Reject if any user message exceeds 60 chars
     const hasOversizedMessage = body.messages.some(
-      m => typeof m.content === 'string' && m.content.length > 60
+      m => m.role === 'user' && typeof m.content === 'string' && m.content.length > 60
     );
     if (hasOversizedMessage) {
       return Response.json({ error: 'message too long' }, { status: 400 });
@@ -140,7 +140,7 @@ export async function POST(request) {
       .slice(-10)
       .map(m => ({
         role:    m.role === 'assistant' ? 'assistant' : 'user',
-        content: String(m.content).slice(0, 60),
+        content: m.role === 'user' ? String(m.content).slice(0, 60) : String(m.content),
       }));
 
     consumeRequest(ip);

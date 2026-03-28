@@ -133,6 +133,8 @@ body {
 @keyframes term-pulse  { 0%,100%{opacity:1} 50%{opacity:0.3} }
 @keyframes term-blink  { 0%,100%{opacity:1} 50%{opacity:0}   }
 @keyframes term-fadein { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:translateY(0)} }
+@keyframes page-fadein { from{opacity:0} to{opacity:1} }
+.page-fade { animation: page-fadein 0.25s ease forwards; }
 @keyframes term-dots   { 0%{content:'   '} 25%{content:'.  '} 50%{content:'.. '} 75%{content:'...'} 100%{content:'   '} }
 
 .term-pulse  { animation: term-pulse  2.5s ease-in-out infinite; }
