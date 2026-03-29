@@ -1,8 +1,8 @@
 ---
 title: "Redesigning my portfolio, third time around, but AI powered"
 date: "2026-03-28"
-tags: ["design", "ai","portfolio"]
-excerpt: "A deep dive into the designing, configuration and deployment of my new AI-infused portfolio site. I am pretty chuffed with it. Thanks Claude for the help 🫶"
+tags: [design, ai, portfolio, deployment]
+excerpt: "A dive into the designing, configuration and deployment of my new AI-infused portfolio site. I am pretty chuffed with it. Thanks Claude for the help 🫶"
 priority: 1
 ---
 
@@ -33,7 +33,7 @@ Here was Claude's first mockup:
 ![claude mockup](/blog/portfolio-v3/claude-mockup.png)
 
 
-As you might be able to tell, this is really not far off from how some of the base elements look now! The nav, footer and the left side of the hero are much the same. We then discussed my setup, the blog and homepage. I spoke with my colleagues about the look at they gave some helpful feedback, so I entered this as well.
+As you might be able to tell, this is really not far off from how some of the base elements look now! The nav, footer and the left side of the hero are much the same. We then discussed my setup, the blog and homepage. I spoke with my colleagues about the look and they gave some helpful feedback, so I entered this as well.
 
 Having something like the terminal is something I have wanted before, but not had the time or skill to do it. Thankfully, Claude did the heavy work on this project, so I was able to freely think, showing the true advantage of AI tooling. A photo was considered, like before, but after trying it over and over, it just did not work.
 
@@ -72,13 +72,13 @@ It's like having a mini-me right there on the website, ready to talk with - I do
 
 Sometimes, the best ideas can occur from just being observant.
 
-* the "moire" lines (as Claude tells me 🤓) are on the site because my left monitor is broken and I liked the look of them. Adds a bit of texture.
+* the "Moiré" lines (as Claude tells me 🤓) are on the site because my left monitor is broken and I liked the look of them. Adds a bit of texture.
 * I only thought to have the site support ultra-wide screens, because my housemate has one...
 * the site came together overall, because my colleagues constantly like to check in on it, so I thought to impress em (hope you like it Finn).
 
 ## Results
 
-Here are some of the sites' capabilites:
+Here are some of the sites' capabilities:
 * functional service check (top right)
 * working blog system, with markdown support
 * working integrated terminal style LLM "folio-ai"
@@ -87,10 +87,35 @@ Here are some of the sites' capabilites:
 * custom 404 page
 * in my opinion, a neat design
 
-There are plenty of details about this project I have not gone into, but feel free to ask me if you're interested.
+I met my goals and achieved way more than I thought was even possible.
+
+There are many details about this project I did not go into, but feel free to ask me if you're interested.
 
 ![brainwave prompt response](/blog/portfolio-v3/ai.gif)
 Yes, this is 2x speed...
+
+## Deployment
+
+Nothing too complex here. The routing through the reverse proxies and DNS was already set up from the previous deployment. This goes CloudFlare -> Azure TM -> LBs -> Venus. I then have a self-hosted GitHub runner on "Venus", which patiently awaits a job.
+
+The GitHub workflow is simple:  
+1 - Download the project  
+2 - Build it  
+3 - Remove the old one from Docker  
+4 - Deploy the new one onto Docker  
+
+Again, the Docker file is pretty minimal. Essentially, use the Node 24 base image, then copy my website files, install the required packages and then fully build the site. The beauty of NextJS here is that, for example, the blog pages are fully generated at this stage - so the site is super quick.
+
+```
+FROM node:24-alpine
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+```
+
+Could this be improved? Absolutely. Such as the issue of a slight downtime as the old goes and the new comes in, or that there is a clear single point of failure here. But for a portfolio, this is enough for now. The site still boasts a 99.67% uptime over the past year 🤷‍♂️.
 
 ## What I learned
 
