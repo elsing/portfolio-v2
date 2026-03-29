@@ -6,7 +6,7 @@ import { useTerminal } from '@/components/TerminalContext';
 const WARN_AT      = 3;
 const BOOT_RETRIES = 4;
 const BOOT_DELAY   = 2000;
-const MAX_CHARS    = 60;
+const MAX_CHARS    = 200;
 const CHAR_WARN_AT = 20;
 const DECRYPT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&';
 
@@ -116,7 +116,7 @@ export default function TerminalCard() {
     connected, setConnected,
     ipRemaining, setIpRemaining,
     sessionLeft, setSessionLeft,
-    booted,
+    booted, restoreState,
     IP_LIMIT, SESSION_LIMIT, SESSION_KEY,
   } = useTerminal();
 
@@ -136,6 +136,14 @@ export default function TerminalCard() {
   const cmdHistory   = useRef([]);
   const historyIndex = useRef(-1);
 
+  // Restore cmd history from sessionStorage
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('folio_cmd_history');
+      if (saved) cmdHistory.current = JSON.parse(saved);
+    } catch {}
+  }, []);
+
   useEffect(() => { setMounted(true); }, []);
 
   // Auto-scroll on new lines
@@ -144,9 +152,15 @@ export default function TerminalCard() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [lines]);
 
-  // Decrypt effect when returning to page (already booted)
+  // Decrypt effect when returning to page or reloading with saved session
   useEffect(() => {
-    if (!booted.current || lines.length === 0) return;
+    if (restoreState !== true || lines.length === 0) return;
+
+    // Re-check connection silently in background
+    fetch('/api/terminal/health')
+      .then(r => r.json())
+      .then(d => setConnected(d.connected ?? false))
+      .catch(() => setConnected(false));
 
     const DURATION = 600;
     const FPS      = 30;
@@ -177,10 +191,11 @@ export default function TerminalCard() {
 
     return () => clearInterval(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // only on mount
+  }, [restoreState]);
 
-  // Boot sequence — only runs once across all navigations
+  // Boot sequence — only runs on fresh session (no saved state)
   useEffect(() => {
+    if (restoreState !== false) return;
     if (booted.current) return;
     booted.current = true;
 
@@ -248,7 +263,7 @@ export default function TerminalCard() {
       ]);
       setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100);
     });
-  }, []);
+  }, [restoreState]);
 
   function append(newLines) {
     setLines(prev => [...prev, ...newLines]);
@@ -288,6 +303,7 @@ export default function TerminalCard() {
 
     cmdHistory.current = [...cmdHistory.current, cmd];
     historyIndex.current = -1;
+    try { sessionStorage.setItem('folio_cmd_history', JSON.stringify(cmdHistory.current)); } catch {}
 
     setInput('');
 
