@@ -1,7 +1,6 @@
 import './globals.css';
 import DecryptLoader           from '@/components/DecryptLoader';
 import KonamiCode              from '@/components/KonamiCode';
-import CursorTrail             from '@/components/CursorTrail';
 import PageTransition          from '@/components/PageTransition';
 import { TerminalProvider }    from '@/components/TerminalContext';
 
@@ -20,7 +19,6 @@ export default function RootLayout({ children }) {
             {children}
           </PageTransition>
           <KonamiCode />
-          <CursorTrail />
         </TerminalProvider>
       </body>
     </html>
