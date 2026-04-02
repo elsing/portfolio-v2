@@ -95,10 +95,9 @@ export default function Hero() {
 
           <p className="text-[18px] text-site-muted-hi leading-[1.85] font-light max-w-[500px] mx-auto xl:mx-0 mb-9">
             Building and breaking things since before it was my job title.
-            I run a{' '}
-            <em className="text-site-text not-italic">highly-available private hybrid cloud</em>
-            {' '}spanning 3 countries and 20+ servers.
-            Here I write about the things I have done, and other thoughts.
+            {' '}
+            <em className="text-site-text not-italic">Passionate, curious, and someone who genuinely enjoys the people side as much as the technical</em>
+            {' '}— I care about doing good work and working well with others.
           </p>
 
           <div className="flex flex-wrap items-center justify-center xl:justify-start gap-3">

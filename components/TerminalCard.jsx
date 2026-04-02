@@ -474,6 +474,8 @@ export default function TerminalCard() {
     }
   }
 
+  const [scrolled, setScrolled] = useState(false);
+
   const showCounter   = mounted && ipRemaining !== null && remaining !== null && remaining <= WARN_AT && remaining > 0;
   const counterColour = remaining === 1 ? 'text-site-red' : 'text-site-amber';
   const isDisabled    = loading || connected === null || connected === false || (mounted && remaining === 0);
@@ -521,9 +523,17 @@ export default function TerminalCard() {
         {/* Output */}
         <div
           ref={outputRef}
-          className="terminal-output px-[18px] pt-3.5 pb-1 overflow-y-auto overflow-x-hidden"
+          className="terminal-output px-[18px] pt-3.5 pb-1 overflow-y-auto overflow-x-hidden relative"
           style={{ height: '360px' }}
+          onScroll={e => setScrolled(e.currentTarget.scrollTop > 40)}
         >
+          {/* Pinned disclaimer — fades in when scrolled */}
+          {scrolled && lines.some(l => l.type === 'disclaimer' && l.short) && (
+            <div className="sticky top-0 left-0 right-0 z-10 px-[18px] py-1 font-mono text-[10px] text-site-muted italic opacity-60 backdrop-blur-sm"
+              style={{ background: 'rgba(28,32,30,0.85)', marginLeft: '-18px', marginRight: '-18px' }}>
+              AI may occasionally get things wrong.
+            </div>
+          )}
           {(decryptLines ?? lines).map((line, i) => <Line key={i} line={line} />)}
           {loading && (
             <div className="font-mono text-xs text-site-muted pl-4 leading-7">
