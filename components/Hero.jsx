@@ -1,5 +1,8 @@
-import Link        from 'next/link';
-import TerminalCard from '@/components/TerminalCard';
+'use client';
+
+import Link            from 'next/link';
+import TerminalCard    from '@/components/TerminalCard';
+import { useTerminal } from '@/components/TerminalContext';
 
 const PRO_BADGES = [
   { label: '2nd line engineer',        style: 'green' },
@@ -39,10 +42,7 @@ function PersonalityBadge({ label, icon, colour }) {
     background:  `${colour}0d`,
   };
   return (
-    <span
-      className="inline-flex items-center gap-1.5 font-mono text-[13px] tracking-[0.04em] px-3 py-[5px] rounded border"
-      style={style}
-    >
+    <span className="inline-flex items-center gap-1.5 font-mono text-[13px] tracking-[0.04em] px-3 py-[5px] rounded border" style={style}>
       {icon && (
         <svg width="18" height="11" viewBox="0 0 32 18" fill="none" aria-hidden="true">
           <circle cx="5.5"  cy="13.5" r="3.5" stroke={colour} strokeWidth="1.4" />
@@ -94,7 +94,7 @@ export default function Hero() {
           </div>
 
           <p className="text-[18px] text-site-muted-hi leading-[1.85] font-light max-w-[500px] mx-auto xl:mx-0 mb-9">
-            Building, breaking and fixing things since before it was my job title.
+            Building and breaking things since before it was my job title.
             I run a{' '}
             <em className="text-site-text not-italic">highly-available private hybrid cloud</em>
             {' '}spanning 3 countries and 20+ servers.

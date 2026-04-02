@@ -10,17 +10,41 @@ const MAX_CHARS    = 200;
 const CHAR_WARN_AT = 20;
 const DECRYPT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&';
 
-const BOOT_OUTROS = [
-  "try asking about elliot's experience or skills",
-  "ask about the homelab, his background, or how to get in touch",
-  "curious if elliot's the right fit? ask away",
-  "not sure where to start? try: what does elliot do?",
-  "ask anything — work history, skills, projects",
-  "find out more about elliot — just type a question",
+const SUGGESTIONS = [
+  "type anything — ask about elliot's experience",
+  "try: what is elliot like to work with?",
+  "try: tell me about the homelab",
+  "try: what has he built?",
+  "try: is elliot the right fit for us?",
+  "try: how do I get in touch with elliot?",
+  "try: what does elliot actually do day to day?",
 ];
 
-function pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function RotatingHint({ onScroll }) {
+  const [index,   setIndex]   = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setIndex(i => (i + 1) % SUGGESTIONS.length);
+        setVisible(true);
+        onScroll?.();
+      }, 300);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div
+      className="font-mono text-xs leading-7 pl-4 text-site-green italic transition-opacity duration-300"
+      style={{ opacity: visible ? 0.75 : 0 }}
+    >
+      <span className="term-blink inline-block w-1.5 h-2.5 bg-site-green align-middle mr-1.5 not-italic" style={{ opacity: 0.7 }} />
+      {SUGGESTIONS[index]}
+    </div>
+  );
 }
 
 function randomChar() {
@@ -35,6 +59,36 @@ function scrambleLine(text, revealedFraction) {
     if (ch === ' ' || ch === '—' || ch === '·') return ch;
     return randomChar();
   }).join('');
+}
+
+function DisclaimerDecrypt({ text }) {
+  const [displayed, setDisplayed] = useState('');
+
+  useEffect(() => {
+    const DURATION = 600;
+    const FPS      = 30;
+    const interval = 1000 / FPS;
+    const steps    = DURATION / interval;
+    let step = 0;
+
+    const timer = setInterval(() => {
+      step++;
+      const fraction = step / steps;
+      setDisplayed(scrambleLine(text, fraction));
+      if (step >= steps) {
+        clearInterval(timer);
+        setDisplayed(text);
+      }
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [text]);
+
+  return (
+    <div className="font-mono text-xs leading-7 pl-4 text-site-muted opacity-50 italic">
+      {displayed}
+    </div>
+  );
 }
 
 function Line({ line }) {
@@ -56,6 +110,18 @@ function Line({ line }) {
 
   if (line.type === 'typing') return (
     <TypewriterLine text={line.text} onScroll={line.onScroll} onDone={line.onDone} />
+  );
+
+  if (line.type === 'rotating') return null;
+
+  if (line.type === 'disclaimer-decrypt') return (
+    <DisclaimerDecrypt text={line.text} onDone={line.onDone} />
+  );
+
+  if (line.type === 'disclaimer') return (
+    <div className={`font-mono text-xs leading-7 pl-4 italic ${line.short ? 'text-site-muted opacity-50' : 'text-site-red opacity-70'}`}>
+      {line.text}
+    </div>
   );
 
   if (line.type === 'hint') return (
@@ -241,7 +307,9 @@ export default function TerminalCard() {
       const afterLines = [{ type: 'gap' }];
 
       if (ok && effectiveRemaining > 0) {
-        afterLines.push({ type: 'hint', text: pickRandom(BOOT_OUTROS) });
+        afterLines.push({ type: 'rotating' });
+        afterLines.push({ type: 'gap' });
+        afterLines.push({ type: 'disclaimer', text: 'folio-ai is an AI and may occasionally get things wrong — always verify anything important.' });
       } else if (!ok) {
         afterLines.push({ type: 'warn', text: 'offline for now — check back soon.' });
       }
@@ -304,6 +372,16 @@ export default function TerminalCard() {
     cmdHistory.current = [...cmdHistory.current, cmd];
     historyIndex.current = -1;
     try { sessionStorage.setItem('folio_cmd_history', JSON.stringify(cmdHistory.current)); } catch {}
+
+    // On first message, replace rotating hint and long disclaimer
+    if (history.length === 0) {
+      const SHORT = 'AI may occasionally get things wrong.';
+      setLines(prev => prev.map(l => {
+        if (l.type === 'rotating')   return { type: 'gap' }; // remove, gap keeps layout
+        if (l.type === 'disclaimer') return { type: 'disclaimer-decrypt', text: SHORT, short: true };
+        return l;
+      }));
+    }
 
     setInput('');
 
@@ -453,6 +531,13 @@ export default function TerminalCard() {
             </div>
           )}
         </div>
+
+        {/* Rotating hint — shown above input until first interaction */}
+        {lines.some(l => l.type === 'rotating') && (
+          <div className="px-[18px] py-1.5 border-t border-white/[0.04]">
+            <RotatingHint onScroll={() => {}} />
+          </div>
+        )}
 
         {/* Input */}
         <form
