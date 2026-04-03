@@ -1,16 +1,21 @@
 
-name: "Portoflio V2 - Staging Area Deployment"
+name: "Portoflio V3 - Staging Deployment"
 
 on:
   push:
     branches:
       - staging
-    # Runs on all paths, instead of main areas
+    # Only run on changes to the relevant code
+    paths:
+      - 'app/**'
+      - 'components/**'
+      - 'docker/**'
+      - 'content/**'
   workflow_dispatch:
 
 jobs:
-  deploy-staging-repo:
-    name: "Deploy staging repo into dedicated staging area"
+  deploy-repo:
+    name: "Deploy repo into staging"
     runs-on: [docker, self-hosted]
 
     steps:
@@ -20,7 +25,7 @@ jobs:
 
       # Build the app and make a Docker image of it
       - name: Build Docker image
-        run: docker build -t portfolio-v2-staging:latest -f docker/staging/Dockerfile .
+        run: docker build -t portfolio-v3-staging:latest -f docker/staging/Dockerfile .
 
       # If already up, take it down
       - name: Stop and remove existing container

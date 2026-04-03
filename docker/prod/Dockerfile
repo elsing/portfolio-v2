@@ -1,5 +1,5 @@
 # Set base image
-FROM node:22-alpine
+FROM node:24-alpine
 
 # Set working directory
 WORKDIR /usr/src/app
@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --omit=dev
 
 # Copy rest of the source code
 COPY . .

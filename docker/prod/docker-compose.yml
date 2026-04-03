@@ -1,15 +1,19 @@
-name: portfolio-v2-prod
+name: portfolio-v3-prod
 
 services:
-  portfolio-v2-prod:
-    container_name: portfolio-v2-prod
+  portfolio-v3-prod:
+    container_name: portfolio-v3-prod
     ports:
       - 3000:3000
-    image: portfolio-v2-prod:latest
+    image: portfolio-v3-prod:latest
+    env_file:
+      - /opt/portfolio/env/.env.prod
+    volumes:
+      - /opt/portfolio/env/system-prompt.txt:/app/system-prompt.txt:ro
     networks:
       traefik_proxy:
         aliases:
-          - portfolio-v2-prod
+          - portfolio-v3-prod
     restart: unless-stopped
 
 networks:

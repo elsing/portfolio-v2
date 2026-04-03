@@ -1,24 +1,26 @@
-import { Lora } from "next/font/google";
-import "./globals.css";
+import './globals.css';
+import DecryptLoader           from '@/components/DecryptLoader';
+import KonamiCode              from '@/components/KonamiCode';
+import PageTransition          from '@/components/PageTransition';
+import { TerminalProvider }    from '@/components/TerminalContext';
 
 export const metadata = {
-  title: "Elliot Singer's Portfolio",
-  description: "Elliot Singer's Portfolio",
+  title:       'Elliot Singer — IT Engineer & Self-Hoster',
+  description: 'Portfolio, blog and homelab docs for Elliot Singer.',
 };
-
-const lora = Lora({
-  subsets: ["latin"],
-});
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${lora.className} antialiased`}
-      >
-        {children}
+      <body className="antialiased">
+        <TerminalProvider>
+          <DecryptLoader />
+          <PageTransition>
+            {children}
+          </PageTransition>
+          <KonamiCode />
+        </TerminalProvider>
       </body>
     </html>
   );
 }
-
