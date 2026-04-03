@@ -218,29 +218,20 @@ export default function TerminalCard() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [lines]);
 
-  // Decrypt effect when returning to page or reloading with saved session
+  // Decrypt on mount whenever there are existing lines (navigation or reload)
   useEffect(() => {
-    if (restoreState !== true || lines.length === 0) return;
+    if (lines.length === 0) return;
 
-    // Re-check connection silently in background
-    fetch('/api/terminal/health')
-      .then(r => r.json())
-      .then(d => setConnected(d.connected ?? false))
-      .catch(() => setConnected(false));
-
+    const realLines = lines;
     const DURATION = 600;
     const FPS      = 30;
     const interval = 1000 / FPS;
     const steps    = DURATION / interval;
-    let   step     = 0;
-
-    // Capture the real lines at start
-    const realLines = lines;
+    let step = 0;
 
     const timer = setInterval(() => {
       step++;
       const fraction = step / steps;
-
       setDecryptLines(
         realLines.map(line => {
           if (!line.text || line.type === 'gap' || line.type === 'divider' || line.type === 'status') return line;
@@ -248,15 +239,22 @@ export default function TerminalCard() {
           return { ...line, type, text: scrambleLine(line.text, fraction) };
         })
       );
-
       if (step >= steps) {
         clearInterval(timer);
-        setDecryptLines(null); // snap back to real lines
+        setDecryptLines(null);
       }
     }, interval);
 
     return () => clearInterval(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // mount only
+  // Re-check connection silently on restore
+  useEffect(() => {
+    if (restoreState !== true) return;
+    fetch('/api/terminal/health')
+      .then(r => r.json())
+      .then(d => setConnected(d.connected ?? false))
+      .catch(() => setConnected(false));
   }, [restoreState]);
 
   // Boot sequence — only runs on fresh session (no saved state)
@@ -522,24 +520,30 @@ export default function TerminalCard() {
 
         {/* Output */}
         <div
-          ref={outputRef}
-          className="terminal-output px-[18px] pt-3.5 pb-1 overflow-y-auto overflow-x-hidden relative"
+          className="relative"
           style={{ height: '360px' }}
-          onScroll={e => setScrolled(e.currentTarget.scrollTop > 40)}
         >
-          {/* Pinned disclaimer — fades in when scrolled */}
-          {scrolled && lines.some(l => l.type === 'disclaimer' && l.short) && (
-            <div className="sticky top-0 left-0 right-0 z-10 px-[18px] py-1 font-mono text-[10px] text-site-muted italic opacity-60 backdrop-blur-sm"
-              style={{ background: 'rgba(28,32,30,0.85)', marginLeft: '-18px', marginRight: '-18px' }}>
+          {/* Pinned disclaimer — absolutely positioned, fades in when scrolled */}
+          {scrolled && lines.some(l => l.type === 'disclaimer' || l.type === 'disclaimer-decrypt') && (
+            <div
+              className="absolute top-0 left-0 right-0 z-10 px-[18px] py-1.5 font-mono text-xs text-site-muted italic opacity-70 transition-opacity duration-300"
+              style={{ background: 'rgba(28,32,30,0.9)', backdropFilter: 'blur(4px)' }}
+            >
               AI may occasionally get things wrong.
             </div>
           )}
-          {(decryptLines ?? lines).map((line, i) => <Line key={i} line={line} />)}
-          {loading && (
-            <div className="font-mono text-xs text-site-muted pl-4 leading-7">
-              thinking<span className="term-blink">_</span>
-            </div>
-          )}
+          <div
+            ref={outputRef}
+            className="terminal-output px-[18px] pt-3.5 pb-1 overflow-y-auto overflow-x-hidden h-full"
+            onScroll={e => setScrolled(e.currentTarget.scrollTop > 40)}
+          >
+            {(decryptLines ?? lines).map((line, i) => <Line key={i} line={line} />)}
+            {loading && (
+              <div className="font-mono text-xs text-site-muted pl-4 leading-7">
+                thinking<span className="term-blink">_</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Rotating hint — shown above input until first interaction */}
