@@ -8,9 +8,9 @@ priority: 1
 
 *No AI was used in writing this.*
 
-## The goal
+## The goals
 
-It is always good to start with a goal, something to aim for and to work towards.
+It is always good to start with some goals, something to aim for and to work towards.
 
 I had some *simple* goals:
 * I wanted a blog/docs website site
@@ -18,7 +18,7 @@ I had some *simple* goals:
 * it must have some personality. I didn't want it to be dry
 * no WordPress (no offence 😬)
 
-With that being said, in honesty, I did not have a design in mind. Previously, I had used Figma (and a lot of time) to place how I may want the site to look on a page. Often choosing my favourite colours and asking people around me what they thought. I ended up with the below...
+With that being said, in honesty, I did not have a design in mind. Previously, I had used Figma (and a lot of time) to place how I may want the site to look on a page. Often choosing my favourite colours and asking people around me what they thought. I ended up with the following...
 
 ![portfolio-v2](/blog/portfolio-v3/portfolio-v2.png)
 
