@@ -1,8 +1,8 @@
 'use client';
 
 const EXPERIENCE_ITEMS = [
-  { role: 'Junior DevOps & Infra Engineer', org: 'upcoming role',         date: null,                upcoming: true  },
-  { role: '2nd Line Support Engineer',      org: 'current position',      date: 'present',           upcoming: false },
+  { role: 'Junior DevOps & Infra Engineer', org: 'Rowden Technology',     date: 'present',             upcoming: false },
+  { role: '2nd Line Support Engineer',      org: 'Mintivo',     date: 'previous role',       upcoming: false },
   { role: 'Homelab Architect',              org: 'singer.systems — self', date: 'ongoing · 13+ years', upcoming: false },
 ];
 
