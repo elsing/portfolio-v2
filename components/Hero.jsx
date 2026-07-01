@@ -5,8 +5,7 @@ import TerminalCard    from '@/components/TerminalCard';
 import { useTerminal } from '@/components/TerminalContext';
 
 const PRO_BADGES = [
-  { label: '2nd line engineer',        style: 'green' },
-  { label: 'junior devops ↗ incoming', style: 'amber' },
+  { label: 'devops / infra engineer', style: 'green' },
 ];
 
 const PERSONALITY_BADGES = [
