@@ -4,8 +4,8 @@ import Experience from '@/components/Experience';
 import Posts      from '@/components/Posts';
 
 export const metadata = {
-  title:       'Elliot Singer — IT Engineer & Self-Hoster',
-  description: 'Portfolio and blog of Elliot Singer — 2nd line engineer, junior DevOps incoming, homelab enthusiast.',
+  title:       'Elliot Singer — IT Engineer & Self-Hosting Enthusiast',
+  description: 'Portfolio and blog of Elliot Singer — devops / infra engineer and homelab enthusiast.',
 };
 
 const FOOTER_LINKS = [

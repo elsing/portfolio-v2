@@ -16,9 +16,9 @@ export default {
     },
     extend: {
       colors: {
-        bg:              "#161a18",
-        bg2:             "#1c201e",
-        bg3:             "#222824",
+        bg:              "#1e2422",
+        bg2:             "#262c29",
+        bg3:             "#2d3430",
         "site-green":    "#3ddb72",
         "site-amber":    "#d4a84b",
         "site-blue":     "#5b9fd4",

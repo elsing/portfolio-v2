@@ -95,28 +95,28 @@ export default function HomelabPage() {
             ))}
 
             {/* Cloudflare */}
-            <rect x="160" y="42" width="140" height="52" rx="4" fill="#1c201e" stroke="rgba(232,130,42,0.4)" strokeWidth="1"/>
+            <rect x="160" y="42" width="140" height="52" rx="4" fill="#262c29" stroke="rgba(232,130,42,0.4)" strokeWidth="1"/>
             <text x="230" y="63" fontSize="11" fontWeight="500" fill="#e8822a" textAnchor="middle">Cloudflare</text>
             <text x="230" y="79" fontSize="9" fill="#4f6359" textAnchor="middle">CDN · DNS</text>
 
             {/* Azure TM */}
-            <rect x="580" y="42" width="160" height="52" rx="4" fill="#1c201e" stroke="rgba(91,159,212,0.4)" strokeWidth="1"/>
+            <rect x="580" y="42" width="160" height="52" rx="4" fill="#262c29" stroke="rgba(91,159,212,0.4)" strokeWidth="1"/>
             <text x="660" y="63" fontSize="11" fontWeight="500" fill="#5b9fd4" textAnchor="middle">Azure TM</text>
             <text x="660" y="79" fontSize="9" fill="#4f6359" textAnchor="middle">60/40 · live traffic</text>
 
             {/* LBs */}
-            <rect x="80" y="162" width="145" height="52" rx="4" fill="#1c201e" stroke="rgba(91,159,212,0.3)" strokeWidth="1"/>
+            <rect x="80" y="162" width="145" height="52" rx="4" fill="#262c29" stroke="rgba(91,159,212,0.3)" strokeWidth="1"/>
             <text x="152" y="183" fontSize="11" fontWeight="500" fill="#e2ede6" textAnchor="middle">prod-lb-01</text>
             <text x="152" y="199" fontSize="9" fill="#4f6359" textAnchor="middle">Traefik · Zabbix proxy</text>
 
-            <rect x="255" y="162" width="145" height="52" rx="4" fill="#1c201e" stroke="rgba(91,159,212,0.3)" strokeWidth="1"/>
+            <rect x="255" y="162" width="145" height="52" rx="4" fill="#262c29" stroke="rgba(91,159,212,0.3)" strokeWidth="1"/>
             <text x="327" y="183" fontSize="11" fontWeight="500" fill="#e2ede6" textAnchor="middle">prod-lb-02</text>
             <text x="327" y="199" fontSize="9" fill="#4f6359" textAnchor="middle">Traefik · Zabbix proxy</text>
 
             {/* VPS nodes */}
             {[{x:460,cx:515,n:'Jupiter'},{x:590,cx:645,n:'Venus'},{x:720,cx:775,n:'Mars'}].map(({x,cx,n})=>(
               <g key={n}>
-                <rect x={x} y="162" width="110" height="52" rx="4" fill="#1c201e" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+                <rect x={x} y="162" width="110" height="52" rx="4" fill="#262c29" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
                 <text x={cx} y="183" fontSize="11" fontWeight="500" fill="#e2ede6" textAnchor="middle">{n}</text>
                 <text x={cx} y="199" fontSize="9" fill="#4f6359" textAnchor="middle">VPS · Proxmox</text>
               </g>
@@ -128,12 +128,12 @@ export default function HomelabPage() {
             <text x="450" y="345" fontSize="9" fill="#4f6359" textAnchor="middle">OSPF · full mesh · encrypted</text>
 
             {/* OPNsense HA — on-prem, above Proxmox */}
-            <rect x="200" y="410" width="500" height="52" rx="4" fill="#1c201e" stroke="rgba(61,219,114,0.3)" strokeWidth="1"/>
+            <rect x="200" y="410" width="500" height="52" rx="4" fill="#262c29" stroke="rgba(61,219,114,0.3)" strokeWidth="1"/>
             <text x="450" y="431" fontSize="11" fontWeight="500" fill="#3ddb72" textAnchor="middle">OPNsense HA</text>
             <text x="450" y="447" fontSize="9" fill="#4f6359" textAnchor="middle">OPS-01 · OPS-02 · CARP · VMs on Proxmox</text>
 
             {/* Proxmox cluster — below OPNsense */}
-            <rect x="200" y="490" width="500" height="52" rx="4" fill="#1c201e" stroke="rgba(61,219,114,0.25)" strokeWidth="1"/>
+            <rect x="200" y="490" width="500" height="52" rx="4" fill="#262c29" stroke="rgba(61,219,114,0.25)" strokeWidth="1"/>
             <text x="450" y="511" fontSize="11" fontWeight="500" fill="#e2ede6" textAnchor="middle">Proxmox cluster</text>
             <text x="450" y="527" fontSize="9" fill="#4f6359" textAnchor="middle">3 nodes · Ceph · Traefik · Zabbix server · Grafana · 30+ containers</text>
 

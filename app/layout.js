@@ -5,7 +5,7 @@ import PageTransition          from '@/components/PageTransition';
 import { TerminalProvider }    from '@/components/TerminalContext';
 
 export const metadata = {
-  title:       'Elliot Singer — IT Engineer & Self-Hoster',
+  title:       'Elliot Singer — IT Engineer & Self-Hosting Enthusiast',
   description: 'Portfolio, blog and homelab docs for Elliot Singer.',
 };
 

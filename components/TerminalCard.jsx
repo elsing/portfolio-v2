@@ -394,7 +394,7 @@ export default function TerminalCard() {
       return;
     }
     if (cmd === 'uptime') { append([{ type: 'out', text: 'up 3 years, still running. mostly.' }]); return; }
-    if (cmd === 'whoami') { append([{ type: 'out', text: 'elliot singer — it engineer & self-hoster' }]); return; }
+    if (cmd === 'whoami') { append([{ type: 'out', text: 'elliot singer — it engineer & self-hosting enthusiast' }]); return; }
     if (cmd.startsWith('sudo')) {
       append([{ type: 'err', text: 'nice try.' }]);
       return;
