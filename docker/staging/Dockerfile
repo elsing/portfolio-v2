@@ -7,8 +7,8 @@ WORKDIR /usr/src/app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --omit=dev
+# Install dependencies (dev deps needed at build time for Tailwind/PostCSS)
+RUN npm install
 
 # Copy rest of the source code
 COPY . .
