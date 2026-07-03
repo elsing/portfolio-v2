@@ -16,15 +16,15 @@ export default {
     },
     extend: {
       colors: {
-        bg:              "#1e2422",
-        bg2:             "#262c29",
-        bg3:             "#2d3430",
+        bg:              "#161a18",
+        bg2:             "#1c201e",
+        bg3:             "#222824",
         "site-green":    "#3ddb72",
         "site-amber":    "#d4a84b",
         "site-blue":     "#5b9fd4",
         "site-text":     "#e2ede6",
         "site-muted":    "#4f6359",
-        "site-muted-hi": "#7d9a88",
+        "site-muted-hi": "#9fb9ac",
         "site-red":      "#e05050",
       },
       fontFamily: {

@@ -59,7 +59,7 @@ export default function DecryptLoader() {
         position:        'fixed',
         inset:           0,
         zIndex:          9999,
-        background:      '#1e2422',
+        background:      '#161a18',
         display:         'flex',
         alignItems:      'center',
         justifyContent:  'center',

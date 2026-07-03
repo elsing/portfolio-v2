@@ -10,10 +10,7 @@ const BADGES = [
   { label: 'proxmox connoisseur',      icon: 'monitor',  colour: '#a78bfa' },
   { label: 'troubleshooter',           icon: 'wrench',   colour: '#4ade80' },
   { label: 'docker evangelist',        icon: 'package',  colour: '#5b9fd4' },
-  { label: 'uptime obsessive',         icon: 'activity', colour: '#fbbf24' },
   { label: 'ceph enjoyer',             icon: 'database', colour: '#e05050' },
-  { label: 'motorbiker',               icon: 'moto',     colour: '#f472b6' },
-  { label: 'high energy',              icon: 'zap',      colour: '#facc15' },
 ];
 
 const GHOST_LINKS = [
@@ -35,7 +32,7 @@ function BadgeIcon({ icon, colour }) {
     );
   }
 
-  const common = { width: 13, height: 13, viewBox: '0 0 24 24', fill: 'none', stroke: colour, strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true };
+  const common = { width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none', stroke: colour, strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true };
 
   switch (icon) {
     case 'terminal':
@@ -90,6 +87,13 @@ function BadgeIcon({ icon, colour }) {
           <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
         </svg>
       );
+    case 'gear':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+        </svg>
+      );
     case 'zap':
       return (
         <svg {...common} fill={colour} stroke="none">
@@ -103,12 +107,12 @@ function BadgeIcon({ icon, colour }) {
 
 function Badge({ label, icon, colour }) {
   const style = {
-    color:       colour,
-    borderColor: `${colour}40`,
-    background:  `${colour}0d`,
+    color:       '#e2ede6',
+    borderColor: `${colour}55`,
+    background:  `${colour}26`,
   };
   return (
-    <span className="inline-flex items-center gap-1.5 font-mono text-[13px] tracking-[0.04em] px-3 py-[5px] rounded border" style={style}>
+    <span className="inline-flex items-center gap-1.5 font-mono text-[12px] tracking-[0.04em] px-2.5 py-[4.5px] rounded border" style={style}>
       <BadgeIcon icon={icon} colour={colour} />
       {label}
     </span>
@@ -172,7 +176,7 @@ export default function Hero() {
         </div>
 
         {/* ── Right: terminal ───────────────────────────── */}
-        <div className="relative z-10 min-w-0 pt-0 pb-10 xl:py-16">
+        <div className="relative z-10 min-w-0 pb-8 xl:pb-10">
           <TerminalCard />
         </div>
 

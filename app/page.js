@@ -39,7 +39,7 @@ export default function HomePage() {
             <a key={label} href={href}
               target={href.startsWith('http') ? '_blank' : undefined}
               rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-              className="footer-link font-mono text-[12px] text-site-muted no-underline transition-colors">
+              className="footer-link font-mono text-[12px] text-site-muted-hi no-underline transition-colors">
               {label}
             </a>
           ))}
