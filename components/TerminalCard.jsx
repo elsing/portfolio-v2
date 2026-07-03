@@ -197,7 +197,7 @@ export default function TerminalCard() {
     connected, setConnected,
     ipRemaining, setIpRemaining,
     sessionLeft, setSessionLeft,
-    booted, restoreState,
+    bootedRef, restoreState,
     IP_LIMIT, SESSION_LIMIT, SESSION_KEY,
   } = useTerminal();
 
@@ -225,7 +225,7 @@ export default function TerminalCard() {
     } catch {}
   }, []);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { queueMicrotask(() => setMounted(true)); }, []);
 
   // Auto-scroll on new lines
   useEffect(() => {
@@ -280,8 +280,8 @@ export default function TerminalCard() {
   // Boot sequence — only runs on fresh session (no saved state)
   useEffect(() => {
     if (restoreState !== false) return;
-    if (booted.current) return;
-    booted.current = true;
+    if (bootedRef.current) return;
+    bootedRef.current = true;
 
     async function boot() {
       setLines([
