@@ -21,7 +21,7 @@ jobs:
     steps:
       # Download repo
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Build the app and make a Docker image of it
       - name: Build Docker image
