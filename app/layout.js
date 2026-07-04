@@ -1,6 +1,5 @@
 import './globals.css';
 import Script                  from 'next/script';
-import ClickTracker            from '@/components/ClickTracker';
 import DecryptLoader           from '@/components/DecryptLoader';
 import KonamiCode              from '@/components/KonamiCode';
 import PageTransition          from '@/components/PageTransition';
@@ -11,10 +10,20 @@ export const metadata = {
   description: 'Portfolio, blog and homelab docs for Elliot Singer.',
 };
 
+// Umami's script + collect endpoint both live on the instance's base URL, so
+// only the base needs declaring (script.js / recorder.js are derived).
+const UMAMI_URL = process.env.NEXT_PUBLIC_UMAMI_URL?.replace(/\/$/, '');
+
 const ANALYTICS_ENABLED =
   process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true' &&
-  process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL &&
+  UMAMI_URL &&
   process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
+
+// Umami session replay + heatmaps (recorder.js) — on by default whenever
+// analytics is on; set NEXT_PUBLIC_ENABLE_REPLAY=false to opt out (it's a
+// heavier script than the tracker).
+const REPLAY_ENABLED =
+  ANALYTICS_ENABLED && process.env.NEXT_PUBLIC_ENABLE_REPLAY !== 'false';
 
 export default function RootLayout({ children }) {
   return (
@@ -22,13 +31,19 @@ export default function RootLayout({ children }) {
       <body className="antialiased">
         {ANALYTICS_ENABLED && (
           <Script
-            src={process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL}
+            src={`${UMAMI_URL}/script.js`}
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+            strategy="afterInteractive"
+          />
+        )}
+        {REPLAY_ENABLED && (
+          <Script
+            src={`${UMAMI_URL}/recorder.js`}
             data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
             strategy="afterInteractive"
           />
         )}
         <TerminalProvider>
-          <ClickTracker />
           <DecryptLoader />
           <PageTransition>
             {children}

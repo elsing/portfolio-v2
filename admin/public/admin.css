@@ -123,7 +123,3 @@ button.ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
 .login-box .sub { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
 .login-error { color: var(--red); font-size: 12px; min-height: 16px; }
 
-/* heatmap page */
-.heatmap-stage { position: relative; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--bg2); }
-.heatmap-stage iframe { display: block; border: none; width: 100%; }
-.heatmap-stage canvas { position: absolute; inset: 0; pointer-events: none; }

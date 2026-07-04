@@ -20,7 +20,6 @@ const cookieSession = require('cookie-session');
 const authRoutes  = require('./routes/auth');
 const logsRoutes  = require('./routes/logs');
 const statsRoutes = require('./routes/stats');
-const clickRoutes = require('./routes/clicks');
 
 const { ADMIN_PASSWORD, SESSION_SECRET } = process.env;
 if (!ADMIN_PASSWORD || !SESSION_SECRET) {
@@ -60,7 +59,6 @@ app.use(requireAuth);
 // ── Authenticated routes ─────────────────────────────────────
 app.use('/api/logs',   logsRoutes);
 app.use('/api/stats',  statsRoutes);
-app.use('/api/clicks', clickRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 
 const port = parseInt(process.env.ADMIN_PORT ?? '9000', 10);

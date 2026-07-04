@@ -8,8 +8,8 @@ it works, then repeat for prod.
 
 | Piece | Where it runs | Reachable from |
 |---|---|---|
-| SQLite file (AI logs + clicks) | bind mount on host, written by main app | filesystem only |
-| Click tracking endpoint | main app (`/api/track/click`) | public (silent 204s) |
+| SQLite file (folio-ai prompt logs) | bind mount on host, written by main app | filesystem only |
+| Heatmaps + session replay | Umami's built-in feature (v3.2+, `recorder.js`) | via Umami dashboard |
 | Umami | **separately-run, shared instance** — not part of this repo | script/collect must be public |
 | Admin panel | new container, port 9000/9001 | **LAN/WireGuard only** |
 
@@ -58,8 +58,9 @@ Under **Settings → Secrets and variables → Actions → Variables**, add:
 | `PORTFOLIO_BASE_PROD` | prod base dir (e.g. `/opt/portfolio/prod`) — holds `env/` + `data/` |
 | `PORTFOLIO_BASE_STAGING` | staging base dir (e.g. `/opt/portfolio/staging`) |
 | `PROD_ENABLE_ANALYTICS` / `STAGING_ENABLE_ANALYTICS` | `true` once Umami is set up (step 3) |
-| `PROD_UMAMI_SCRIPT_URL` / `STAGING_UMAMI_SCRIPT_URL` | `https://<umami-host>/script.js` |
+| `PROD_UMAMI_URL` / `STAGING_UMAMI_URL` | instance base, e.g. `https://analytics.singer.systems` (`script.js`/`recorder.js` derived) |
 | `PROD_UMAMI_WEBSITE_ID` / `STAGING_UMAMI_WEBSITE_ID` | from Umami's dashboard (step 3) |
+| `PROD_ENABLE_REPLAY` / `STAGING_ENABLE_REPLAY` | session replay + heatmaps — **defaults on** when analytics is on; set `false` to opt out (also needs the Replay toggle on the website in Umami's dashboard) |
 | `PORTFOLIO_PORT[_STAGING]` / `ADMIN_PORT[_STAGING]` | optional host-port overrides (defaults 3000/9000 prod, 3001/9001 staging) |
 
 The base dir layout is what `scripts/setup-env.sh` creates: `.env`,
@@ -99,8 +100,11 @@ Don't have a shared Umami instance running yet? Set one up first — see
 
 - Visit the staging site with dev tools open: `script.js` loads, a `POST` to
   the collect endpoint fires, page view appears in Umami.
-- Ask folio-ai something, click around, then check the admin panel at
-  `http://<docker-host-lan-ip>:9001` — log in, see the AI log row and click stats.
+- Ask folio-ai something, then check the admin panel at
+  `http://<docker-host-lan-ip>:9001` — log in, see the AI log row and stats.
+- Heatmaps/replay: enable the Replay + Heatmap toggles on the website entry in
+  Umami's dashboard, set `STAGING_ENABLE_REPLAY=true` (repo Variable), rebuild,
+  then browse the site and check Umami's Replays/Heatmap reports.
 - Scroll a blog post past 75% → `blog-read` event in Umami.
 - Admin panel exposure: it publishes a plain host port (9001 staging / 9000
   prod) with no reverse-proxy config — as long as your edge/firewall doesn't
@@ -130,4 +134,4 @@ the prod Variables; admin lands on `:9000`.
 - Umami and the custom SQLite pieces are fully independent — one being down
   never affects the other.
 - Local dev: everything no-ops gracefully — analytics off (no env flag),
-  clicks/AI logs write to `./data/portfolio.sqlite` (gitignored).
+  AI logs write to `./data/portfolio.sqlite` (gitignored).

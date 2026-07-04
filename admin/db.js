@@ -3,8 +3,8 @@
  *
  * Self-sufficient on purpose: creates the data directory and schema itself
  * (mirroring lib/db.js) rather than assuming the main app got there first —
- * on a fresh host, admin can start before anyone has ever hit /api/terminal
- * or /api/track/click, and the file wouldn't exist yet otherwise.
+ * on a fresh host, admin can start before anyone has ever hit /api/terminal,
+ * and the file wouldn't exist yet otherwise.
  *
  * Not opened with `readonly`: the DB is in WAL mode, and WAL readers must be
  * able to create/write the -shm shared-memory file, which a readonly handle
@@ -25,21 +25,6 @@ function getDb() {
     db = new Database(DB_PATH);
     db.pragma('journal_mode = WAL');
     db.exec(`
-      CREATE TABLE IF NOT EXISTS click_events (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
-        ts          INTEGER NOT NULL,
-        path        TEXT    NOT NULL,
-        x           REAL    NOT NULL,
-        y           REAL    NOT NULL,
-        viewport_w  INTEGER NOT NULL,
-        viewport_h  INTEGER NOT NULL,
-        page_h      INTEGER NOT NULL,
-        ip_hash     TEXT,
-        ua          TEXT
-      );
-      CREATE INDEX IF NOT EXISTS idx_click_events_path ON click_events(path);
-      CREATE INDEX IF NOT EXISTS idx_click_events_ts   ON click_events(ts);
-
       CREATE TABLE IF NOT EXISTS ai_prompt_logs (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
         ts              INTEGER NOT NULL,

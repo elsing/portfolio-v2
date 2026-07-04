@@ -12,26 +12,20 @@
     <span class="brand">portfolio-admin</span>
     <a href="/" class="active">stats</a>
     <a href="/logs.html">ai logs</a>
-    <a href="/heatmap.html">heatmap</a>
     <button class="logout" id="logout">log out</button>
   </nav>
 
   <main>
-    <h1>usage overview</h1>
+    <h1>folio-ai usage</h1>
 
     <div class="cards" id="cards"></div>
 
-    <h2>folio-ai exchanges — last 30 days</h2>
+    <h2>exchanges — last 30 days</h2>
     <div id="aiChart" class="muted">loading…</div>
 
-    <h2>clicks — last 30 days</h2>
-    <div id="clickChart" class="muted">loading…</div>
-
-    <h2>most-clicked pages</h2>
-    <table id="pathsTable">
-      <thead><tr><th>path</th><th>clicks</th></tr></thead>
-      <tbody></tbody>
-    </table>
+    <p class="muted" style="margin-top:28px">
+      page views, events, heatmaps &amp; session replays live in Umami.
+    </p>
   </main>
 
   <script>
@@ -64,15 +58,9 @@
         <div class="card"><div class="label">ai exchanges (all time)</div><div class="value">${d.aiTotals.total}</div></div>
         <div class="card"><div class="label">unique IPs (ai) — approx</div><div class="value">${d.aiTotals.unique_visitors}</div></div>
         <div class="card"><div class="label">ollama error rate</div><div class="value ${errRate > 5 ? 'warn' : ''}">${errRate}%</div></div>
-        <div class="card"><div class="label">clicks tracked (30d)</div><div class="value">${d.clicksPerDay.reduce((s, r) => s + r.n, 0)}</div></div>
       `;
 
       barChart(document.getElementById('aiChart'), d.aiPerDay);
-      barChart(document.getElementById('clickChart'), d.clicksPerDay);
-
-      document.querySelector('#pathsTable tbody').innerHTML = d.clicksByPath
-        .map(r => `<tr><td>${esc(r.path)}</td><td>${r.n}</td></tr>`).join('')
-        || '<tr><td colspan="2" class="muted">no data yet</td></tr>';
     }
 
     document.getElementById('logout').addEventListener('click', async () => {

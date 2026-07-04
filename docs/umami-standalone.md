@@ -200,13 +200,13 @@ big router table.
 ## Adding a new site
 
 Once the stack is up: log into the dashboard → Settings → Websites → Add
-website → name it, get its **Website ID**, then in that project's own env
-(e.g. `portfolio-v2`'s `.env.prod`/`.env.staging`, see
+website → name it, get its **Website ID**, then set that project's analytics
+config (for this repo those are GitHub repository Variables — see
 [analytics-setup.md](./analytics-setup.md)):
 
 ```sh
 NEXT_PUBLIC_ENABLE_ANALYTICS=true
-NEXT_PUBLIC_UMAMI_SCRIPT_URL=https://analytics.singer.systems/script.js
+NEXT_PUBLIC_UMAMI_URL=https://analytics.singer.systems
 NEXT_PUBLIC_UMAMI_WEBSITE_ID=<the-uuid-just-generated>
 ```
 

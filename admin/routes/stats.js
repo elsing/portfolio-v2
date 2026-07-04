@@ -3,7 +3,7 @@ const { getDb } = require('../db');
 
 const router = express.Router();
 
-// GET /api/stats — usage overview for both features
+// GET /api/stats — folio-ai usage overview
 router.get('/', (req, res) => {
   try {
     const db = getDb();
@@ -21,19 +21,7 @@ router.get('/', (req, res) => {
       FROM ai_prompt_logs
     `).get();
 
-    const clicksPerDay = db.prepare(`
-      SELECT strftime('%Y-%m-%d', ts / 1000, 'unixepoch') AS day, COUNT(*) AS n
-      FROM click_events
-      WHERE ts > (strftime('%s','now') - 30 * 86400) * 1000
-      GROUP BY day ORDER BY day
-    `).all();
-
-    const clicksByPath = db.prepare(`
-      SELECT path, COUNT(*) AS n FROM click_events
-      GROUP BY path ORDER BY n DESC LIMIT 20
-    `).all();
-
-    res.json({ aiPerDay, aiTotals, clicksPerDay, clicksByPath });
+    res.json({ aiPerDay, aiTotals });
   } catch (err) {
     console.error('[admin/stats]', err.message);
     res.status(500).json({ error: 'query failed' });
