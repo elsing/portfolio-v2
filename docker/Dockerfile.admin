@@ -1,0 +1,17 @@
+# portfolio-admin — internal-only admin panel.
+# Build context is the REPO ROOT (see docker-compose build.context), hence the
+# explicit admin/ prefixes — a Dockerfile outside its context is unreliable.
+# SECURITY: never attach this container to traefik_proxy (see docker-compose) —
+# that's the actual isolation boundary, not the port number.
+FROM node:24-alpine
+
+WORKDIR /app
+
+COPY admin/package*.json ./
+RUN npm install --omit=dev
+
+COPY admin/ ./
+
+EXPOSE 9000
+
+CMD ["node", "server.js"]

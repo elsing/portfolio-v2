@@ -40,6 +40,9 @@ yarn-error.log*
 # AI prompts
 .prompts/
 
+# local SQLite data (click events + AI prompt logs)
+/data/
+
 # vercel
 .vercel
 

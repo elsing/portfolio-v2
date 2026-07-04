@@ -5,6 +5,7 @@ import Nav                from '@/components/Nav';
 import Link               from 'next/link';
 import TagPill            from '@/components/TagPill';
 import Footer             from '@/components/Footer';
+import BlogReadTracker    from '@/components/BlogReadTracker';
 
 function SidebarLabel({ children }) {
   return (
@@ -42,6 +43,7 @@ export default async function PostPage({ params }) {
 
   return (
     <div className="min-h-screen">
+      <BlogReadTracker slug={post.slug} />
       <Nav />
 
       <div className="max-w-[1440px] mx-auto">

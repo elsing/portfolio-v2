@@ -1,0 +1,32 @@
+# Set base image
+FROM node:24-alpine
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (dev deps needed at build time for Tailwind/PostCSS)
+RUN npm install
+
+# Copy rest of the source code
+COPY . .
+
+# NEXT_PUBLIC_* vars are inlined at build time (static pages bake them into
+# the HTML), so they must be passed as build args — runtime env_file is too late.
+ARG NEXT_PUBLIC_ENABLE_ANALYTICS
+ARG NEXT_PUBLIC_UMAMI_SCRIPT_URL
+ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
+ENV NEXT_PUBLIC_ENABLE_ANALYTICS=$NEXT_PUBLIC_ENABLE_ANALYTICS \
+    NEXT_PUBLIC_UMAMI_SCRIPT_URL=$NEXT_PUBLIC_UMAMI_SCRIPT_URL \
+    NEXT_PUBLIC_UMAMI_WEBSITE_ID=$NEXT_PUBLIC_UMAMI_WEBSITE_ID
+
+# Build the app
+RUN npm run build
+
+# Expose port
+EXPOSE 3000
+
+# Run the production server
+CMD ["npm", "run", "start"]

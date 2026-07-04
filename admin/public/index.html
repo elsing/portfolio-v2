@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>stats — portfolio-admin</title>
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+  <nav>
+    <span class="brand">portfolio-admin</span>
+    <a href="/" class="active">stats</a>
+    <a href="/logs.html">ai logs</a>
+    <a href="/heatmap.html">heatmap</a>
+    <button class="logout" id="logout">log out</button>
+  </nav>
+
+  <main>
+    <h1>usage overview</h1>
+
+    <div class="cards" id="cards"></div>
+
+    <h2>folio-ai exchanges — last 30 days</h2>
+    <div id="aiChart" class="muted">loading…</div>
+
+    <h2>clicks — last 30 days</h2>
+    <div id="clickChart" class="muted">loading…</div>
+
+    <h2>most-clicked pages</h2>
+    <table id="pathsTable">
+      <thead><tr><th>path</th><th>clicks</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </main>
+
+  <script>
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      }[c]));
+    }
+
+    function barChart(el, rows) {
+      if (!rows.length) { el.textContent = 'no data yet'; return; }
+      const max = Math.max(...rows.map(r => r.n));
+      el.innerHTML = rows.map(r => `
+        <div class="bar-row">
+          <span class="day">${esc(r.day)}</span>
+          <div class="bar" style="width:${Math.round((r.n / max) * 420)}px"></div>
+          <span class="n">${r.n}</span>
+        </div>`).join('');
+    }
+
+    async function load() {
+      const res = await fetch('/api/stats');
+      if (res.status === 401) { window.location.href = '/login.html'; return; }
+      const d = await res.json();
+
+      const errRate = d.aiTotals.total
+        ? Math.round((d.aiTotals.errors / d.aiTotals.total) * 100) : 0;
+
+      document.getElementById('cards').innerHTML = `
+        <div class="card"><div class="label">ai exchanges (all time)</div><div class="value">${d.aiTotals.total}</div></div>
+        <div class="card"><div class="label">unique IPs (ai) — approx</div><div class="value">${d.aiTotals.unique_visitors}</div></div>
+        <div class="card"><div class="label">ollama error rate</div><div class="value ${errRate > 5 ? 'warn' : ''}">${errRate}%</div></div>
+        <div class="card"><div class="label">clicks tracked (30d)</div><div class="value">${d.clicksPerDay.reduce((s, r) => s + r.n, 0)}</div></div>
+      `;
+
+      barChart(document.getElementById('aiChart'), d.aiPerDay);
+      barChart(document.getElementById('clickChart'), d.clicksPerDay);
+
+      document.querySelector('#pathsTable tbody').innerHTML = d.clicksByPath
+        .map(r => `<tr><td>${esc(r.path)}</td><td>${r.n}</td></tr>`).join('')
+        || '<tr><td colspan="2" class="muted">no data yet</td></tr>';
+    }
+
+    document.getElementById('logout').addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/login.html';
+    });
+
+    load();
+  </script>
+</body>
+</html>
