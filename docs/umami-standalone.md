@@ -107,7 +107,8 @@ you're done.
 
 ### Option B — keep the dashboard/login off the public internet
 
-Only `/script.js` and `/api/send` (the collection endpoint) actually need to
+Only `/script.js`, `/recorder.js` (replay/heatmaps), and `/api/send` (the
+collection endpoint) actually need to
 be reachable by visitor browsers. Everything else — `/login`, `/dashboard`,
 `/api/*` beyond `send` — can be restricted to your LAN/WireGuard range with an
 `ipAllowList` middleware. Two routers on the same service, split by path, with
@@ -117,7 +118,17 @@ the more specific one given higher priority so it wins for those two paths:
 http:
   routers:
     umami-public:
-      rule: "Host(`analytics.singer.systems`) && (Path(`/script.js`) || Path(`/api/send`))"
+      # The complete public surface (verified by grepping the deployed
+      # scripts for endpoint strings — technique below):
+      #   /script.js                        tracker
+      #   /api/send                         tracker event collection
+      #   /recorder.js                      session replay + heatmaps (v3.2+)
+      #   /api/websites/<id>/recorder       recorder config fetch
+      #   /api/record                       replay/heatmap data upload
+      # Keep the regex tight — Umami's authenticated admin REST API also
+      # lives under /api/websites/, don't expose the whole prefix.
+      # (PathRegexp is Traefik v3; on v2 use Path(`/api/websites/{id:[^/]+}/recorder`).)
+      rule: "Host(`analytics.singer.systems`) && (Path(`/script.js`) || Path(`/api/send`) || Path(`/recorder.js`) || Path(`/api/record`) || PathRegexp(`^/api/websites/[^/]+/recorder$`))"
       entryPoints:
         - websecure
       service: umami
@@ -149,9 +160,20 @@ http:
           - url: "http://umami:3000"
 ```
 
-Note: older Umami releases used `/api/collect` instead of `/api/send` — check
-your version's docs/Network tab if events aren't showing up, and add that path
-to the `umami-public` rule if needed. With this split, hitting
+Note: older Umami releases used `/api/collect` instead of `/api/send`, and the
+endpoint set may shift between versions. If something stops flowing after an
+Umami upgrade, get the definitive endpoint list straight from the deployed
+scripts rather than guessing:
+
+```sh
+curl -s https://analytics.singer.systems/script.js https://analytics.singer.systems/recorder.js \
+  | grep -oE 'api/[a-zA-Z0-9/_${}.-]*' | sort -u
+```
+
+A blocked path shows up in the browser as a CORS error (Traefik's 404 carries
+no `Access-Control-Allow-Origin` header, so the browser reports the preflight
+failure as CORS) — the root cause is still the missing route, not CORS config.
+Also remember Cloudflare may cache the 404s — purge after fixing the rule. With this split, hitting
 `analytics.singer.systems/login` from outside your LAN 403s at the edge before
 it ever reaches the Umami container — visitors only ever get to the two
 tracking paths.
@@ -191,7 +213,7 @@ http:
 ```
 
 Then on your **public** Traefik instance, only the narrow `umami-public`
-router from Option B (just `/script.js` + `/api/send`, no middleware needed
+router from Option B (just `/script.js` + `/recorder.js` + `/api/send`, no middleware needed
 since it's meant to be public anyway) — same principle as the standalone
 admin panel elsewhere in this repo: the isolation is structural (which
 instance/network a service sits on), not a rule you have to get right in one

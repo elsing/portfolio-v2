@@ -88,13 +88,12 @@ Don't have a shared Umami instance running yet? Set one up first — see
 1. In your Umami dashboard: Settings → Websites → Add website (one entry per
    environment) → copy each **Website ID** into the repo Variables above and
    set the `*_ENABLE_ANALYTICS` variables to `true`.
-2. Push to `staging` — the CI/CD chain does the rest: the **Build & Publish
-   Images** workflow builds both images on GitHub's runners (baking the
-   analytics values in) and pushes them to GHCR; when it succeeds, the deploy
-   workflow fires on your self-hosted runner and just does
-   `docker compose pull` + `up -d`. Changing any `NEXT_PUBLIC_*`/analytics
-   variable later means re-running the build workflow (or pushing), not just
-   restarting containers.
+2. Push to `staging` — the single **Build & Deploy** workflow does the rest:
+   builds both images on GitHub's cloud runners (baking the analytics values
+   in), pushes them to GHCR, then its deploy job runs on your self-hosted
+   runner and just does `docker compose pull` + `up -d`. Changing any
+   `NEXT_PUBLIC_*`/analytics variable later means re-running the workflow
+   (or pushing), not just restarting containers.
 
 ## Step 4 — Verify staging
 
@@ -120,17 +119,16 @@ the prod Variables; admin lands on `:9000`.
 ## Gotchas
 
 - `NEXT_PUBLIC_*`/analytics changes always need an **image rebuild** (they're
-  baked at build time in the GitHub workflow) — re-run "Build & Publish
-  Images" or push a commit. Runtime env-file changes (Ollama, admin password)
-  only need `docker compose up -d` on the host.
-- The deploy workflows only fire automatically after a successful image build
-  for their branch (`workflow_run`) — and GitHub only triggers `workflow_run`
-  from workflow files on the **default branch**, so all three workflow files
-  must exist on `main` before the staging chain auto-fires.
+  baked at build time in the GitHub workflow) — re-run "Build & Deploy" or
+  push a commit. Runtime env-file changes (Ollama, admin password) only need
+  `docker compose up -d` on the host.
+- Build and deploy are one workflow, so a push to `staging` builds AND deploys
+  staging using that branch's copy of the workflow — no dependency on `main`.
+  Version tags (`v*`) build/publish images without deploying.
 - First ever run: GHCR packages are created private by default. Either make
   `portfolio` and `portfolio-admin` packages public in their GitHub settings,
-  or leave them private — the deploy workflow logs into GHCR with
-  `GITHUB_TOKEN` either way.
+  or leave them private — the deploy job logs into GHCR with `GITHUB_TOKEN`
+  either way.
 - Umami and the custom SQLite pieces are fully independent — one being down
   never affects the other.
 - Local dev: everything no-ops gracefully — analytics off (no env flag),

@@ -1,8 +1,13 @@
-name: "Build & Publish Images"
+name: "Build & Deploy"
 
-# Builds the portfolio + admin images on GitHub's runners and pushes to GHCR.
-# The deploy workflows trigger off this one completing (workflow_run) and just
-# pull + restart on the self-hosted runner — no building on the host.
+# One pipeline: build the portfolio + admin images on GitHub's cloud runners,
+# push to GHCR, then deploy on the self-hosted runner (pull + restart — no
+# building on the host). Everything runs from THIS branch's copy of the file,
+# so a push to staging builds AND deploys staging with no dependency on main.
+#
+#   push to staging → build :staging images → deploy staging
+#   push to main    → build :main images    → deploy prod
+#   tag v*          → build versioned images only (no deploy)
 #
 # Tagging scheme (docker/metadata-action):
 #   push to main    → :main, :latest, :sha-<short>
@@ -142,3 +147,54 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=admin
           cache-to: type=gha,scope=admin,mode=max
+
+  deploy:
+    name: "Deploy ${{ github.ref_name == 'main' && 'production' || 'staging' }}"
+    needs: [build-portfolio, build-admin]
+    # Branch pushes only — version tags publish images without deploying
+    if: github.ref_name == 'main' || github.ref_name == 'staging'
+    runs-on: [docker, self-hosted]
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      # Per-environment config from repository Variables — the server's
+      # layout never appears in this public repo. Ports fall back to the
+      # compose defaults (3000/9000 prod, 3001/9001 staging) when unset.
+      - name: Select environment config
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            echo "PORTFOLIO_BASE=${{ vars.PORTFOLIO_BASE_PROD }}" >> "$GITHUB_ENV"
+            echo "PORTFOLIO_PORT=${{ vars.PORTFOLIO_PORT }}"      >> "$GITHUB_ENV"
+            echo "ADMIN_PORT=${{ vars.ADMIN_PORT }}"              >> "$GITHUB_ENV"
+            echo "COMPOSE_DIR=prod"                               >> "$GITHUB_ENV"
+          else
+            echo "PORTFOLIO_BASE=${{ vars.PORTFOLIO_BASE_STAGING }}" >> "$GITHUB_ENV"
+            echo "PORTFOLIO_PORT=${{ vars.PORTFOLIO_PORT_STAGING }}" >> "$GITHUB_ENV"
+            echo "ADMIN_PORT=${{ vars.ADMIN_PORT_STAGING }}"         >> "$GITHUB_ENV"
+            echo "COMPOSE_DIR=staging"                               >> "$GITHUB_ENV"
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The canonical compose file lives in the environment's base dir (host
+      # filesystem, mounted into the runner at the same path) — not in the
+      # runner's ephemeral checkout. This also lets you manage the stack
+      # manually from the host: cd $PORTFOLIO_BASE && docker compose ps/logs.
+      - name: Install compose file into base dir
+        run: cp "docker/$COMPOSE_DIR/docker-compose.yml" "$PORTFOLIO_BASE/docker-compose.yml"
+
+      - name: Pull latest images
+        run: docker compose -f "$PORTFOLIO_BASE/docker-compose.yml" pull
+
+      - name: Restart containers
+        run: docker compose -f "$PORTFOLIO_BASE/docker-compose.yml" up -d

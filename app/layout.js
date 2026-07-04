@@ -33,6 +33,7 @@ export default function RootLayout({ children }) {
           <Script
             src={`${UMAMI_URL}/script.js`}
             data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+            data-performance="true"
             strategy="afterInteractive"
           />
         )}
