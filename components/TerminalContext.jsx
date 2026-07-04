@@ -18,28 +18,30 @@ export function TerminalProvider({ children }) {
   const [sessionLeft, setSessionLeft]  = useState(SESSION_LIMIT);
   // null = not yet checked, true = had saved session, false = fresh
   const [restoreState, setRestoreState] = useState(null);
-  const booted = useRef(false);
+  const bootedRef = useRef(false);
 
   useEffect(() => {
-    try {
-      const savedLines   = sessionStorage.getItem(LINES_KEY);
-      const savedHistory = sessionStorage.getItem(HISTORY_KEY);
-      const sessionUsed  = parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10);
-      const parsedLines  = savedLines ? JSON.parse(savedLines) : [];
+    (async () => {
+      try {
+        const savedLines   = sessionStorage.getItem(LINES_KEY);
+        const savedHistory = sessionStorage.getItem(HISTORY_KEY);
+        const sessionUsed  = parseInt(sessionStorage.getItem(SESSION_KEY) ?? '0', 10);
+        const parsedLines  = savedLines ? JSON.parse(savedLines) : [];
 
-      if (parsedLines.length > 0) {
-        setLinesState(parsedLines);
-        booted.current = true;
-        setRestoreState(true);
-      } else {
+        if (parsedLines.length > 0) {
+          setLinesState(parsedLines);
+          bootedRef.current = true;
+          setRestoreState(true);
+        } else {
+          setRestoreState(false);
+        }
+
+        if (savedHistory) setHistoryState(JSON.parse(savedHistory));
+        setSessionLeft(Math.max(0, SESSION_LIMIT - sessionUsed));
+      } catch {
         setRestoreState(false);
       }
-
-      if (savedHistory) setHistoryState(JSON.parse(savedHistory));
-      setSessionLeft(Math.max(0, SESSION_LIMIT - sessionUsed));
-    } catch {
-      setRestoreState(false);
-    }
+    })();
   }, []);
 
   function setLines(val) {
@@ -70,7 +72,7 @@ export function TerminalProvider({ children }) {
       connected, setConnected,
       ipRemaining, setIpRemaining,
       sessionLeft, setSessionLeft,
-      booted, restoreState,
+      bootedRef, restoreState,
       IP_LIMIT, SESSION_LIMIT, SESSION_KEY,
     }}>
       {children}

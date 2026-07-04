@@ -38,10 +38,9 @@ function RotatingHint({ onScroll }) {
 
   return (
     <div
-      className="font-mono text-xs leading-7 pl-4 text-site-green italic transition-opacity duration-300"
+      className="font-mono text-xs leading-7 text-center text-site-green italic transition-opacity duration-300"
       style={{ opacity: visible ? 0.75 : 0 }}
     >
-      <span className="term-blink inline-block w-1.5 h-2.5 bg-site-green align-middle mr-1.5 not-italic" style={{ opacity: 0.7 }} />
       {SUGGESTIONS[index]}
     </div>
   );
@@ -107,6 +106,22 @@ function Line({ line }) {
       {line.text}<span className="term-checking-dots" />
     </div>
   );
+
+  if (line.type === 'boot') {
+    const statusColour =
+      line.statusType === 'err'     ? 'text-site-red'
+      : line.statusType === 'warn'  ? 'text-site-amber'
+      : line.statusType === 'success' ? 'text-site-green'
+      : 'text-site-muted';
+    return (
+      <div className="font-mono text-xs leading-7 pl-4 pr-4 flex items-center justify-between gap-3">
+        <span className="text-site-muted-hi shrink-0">{line.text}</span>
+        <span className={`${statusColour} text-right`}>
+          {line.statusText}{line.checking && <span className="term-checking-dots" />}
+        </span>
+      </div>
+    );
+  }
 
   if (line.type === 'typing') return (
     <TypewriterLine text={line.text} onScroll={line.onScroll} onDone={line.onDone} />
@@ -182,7 +197,7 @@ export default function TerminalCard() {
     connected, setConnected,
     ipRemaining, setIpRemaining,
     sessionLeft, setSessionLeft,
-    booted, restoreState,
+    bootedRef, restoreState,
     IP_LIMIT, SESSION_LIMIT, SESSION_KEY,
   } = useTerminal();
 
@@ -210,7 +225,7 @@ export default function TerminalCard() {
     } catch {}
   }, []);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { queueMicrotask(() => setMounted(true)); }, []);
 
   // Auto-scroll on new lines
   useEffect(() => {
@@ -236,7 +251,12 @@ export default function TerminalCard() {
         realLines.map(line => {
           if (!line.text || line.type === 'gap' || line.type === 'divider' || line.type === 'status') return line;
           const type = line.type === 'typing' ? 'out' : line.type;
-          return { ...line, type, text: scrambleLine(line.text, fraction) };
+          return {
+            ...line,
+            type,
+            text: scrambleLine(line.text, fraction),
+            ...(line.statusText ? { statusText: scrambleLine(line.statusText, fraction) } : {}),
+          };
         })
       );
       if (step >= steps) {
@@ -260,13 +280,12 @@ export default function TerminalCard() {
   // Boot sequence — only runs on fresh session (no saved state)
   useEffect(() => {
     if (restoreState !== false) return;
-    if (booted.current) return;
-    booted.current = true;
+    if (bootedRef.current) return;
+    bootedRef.current = true;
 
     async function boot() {
       setLines([
-        { type: 'out',    text: 'folio-ai — singer.systems' },
-        { type: 'status', text: 'checking connection' },
+        { type: 'boot', text: 'folio-ai', statusText: 'checking connection', checking: true },
       ]);
 
       let remNum = IP_LIMIT;
@@ -296,11 +315,13 @@ export default function TerminalCard() {
 
       setConnected(ok);
 
-      const statusLine = !ok
-        ? { type: 'err',     text: 'disconnected — AI feature unavailable' }
+      const statusText = !ok
+        ? 'disconnected — AI feature unavailable'
         : effectiveRemaining === 0
-        ? { type: 'warn',    text: 'rate limited — try again later in an hour or so' }
-        : { type: 'success', text: 'connected to proxmox cluster' };
+        ? 'rate limited — try again later in an hour or so'
+        : 'connected to proxmox cluster';
+
+      const statusType = !ok ? 'err' : effectiveRemaining === 0 ? 'warn' : 'success';
 
       const afterLines = [{ type: 'gap' }];
 
@@ -313,8 +334,7 @@ export default function TerminalCard() {
       }
 
       setLines([
-        { type: 'out', text: 'folio-ai — singer.systems' },
-        statusLine,
+        { type: 'boot', text: 'folio-ai', statusText, statusType },
         ...afterLines,
       ]);
 
@@ -324,8 +344,7 @@ export default function TerminalCard() {
     boot().catch(() => {
       setConnected(false);
       setLines([
-        { type: 'out', text: 'folio-ai — singer.systems'              },
-        { type: 'err', text: 'disconnected — could not reach backend' },
+        { type: 'boot', text: 'folio-ai', statusText: 'disconnected — could not reach backend', statusType: 'err' },
       ]);
       setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 100);
     });
@@ -394,7 +413,7 @@ export default function TerminalCard() {
       return;
     }
     if (cmd === 'uptime') { append([{ type: 'out', text: 'up 3 years, still running. mostly.' }]); return; }
-    if (cmd === 'whoami') { append([{ type: 'out', text: 'elliot singer — it engineer & self-hoster' }]); return; }
+    if (cmd === 'whoami') { append([{ type: 'out', text: 'elliot singer — it engineer & self-hosting enthusiast' }]); return; }
     if (cmd.startsWith('sudo')) {
       append([{ type: 'err', text: 'nice try.' }]);
       return;
@@ -562,6 +581,9 @@ export default function TerminalCard() {
         >
           <span className="font-mono text-xs text-site-green shrink-0">portfolio@prod-ai-01 ~</span>
           <span className="font-mono text-xs text-site-text  shrink-0">$</span>
+          {!input && (
+            <span className="term-blink inline-block w-1.5 h-3 bg-site-green shrink-0" style={{ opacity: 0.7 }} />
+          )}
           <input
             ref={inputRef}
             type="text"
@@ -574,7 +596,7 @@ export default function TerminalCard() {
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck={false}
-            className="flex-1 min-w-0 bg-transparent border-none outline-none font-mono text-[16px] md:text-xs text-site-text caret-site-green placeholder:text-site-muted"
+            className="flex-1 min-w-0 bg-transparent border-none outline-none font-mono text-[16px] md:text-xs text-site-text caret-site-green placeholder:text-site-text placeholder:opacity-80"
           />
           <span
             className={`font-mono text-[10px] shrink-0 transition-all duration-200 overflow-hidden ${

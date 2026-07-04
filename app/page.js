@@ -4,8 +4,8 @@ import Experience from '@/components/Experience';
 import Posts      from '@/components/Posts';
 
 export const metadata = {
-  title:       'Elliot Singer — IT Engineer & Self-Hoster',
-  description: 'Portfolio and blog of Elliot Singer — 2nd line engineer, junior DevOps incoming, homelab enthusiast.',
+  title:       'Elliot Singer — IT Engineer & Self-Hosting Enthusiast',
+  description: 'Portfolio and blog of Elliot Singer — devops / infra engineer and homelab enthusiast.',
 };
 
 const FOOTER_LINKS = [
@@ -39,7 +39,7 @@ export default function HomePage() {
             <a key={label} href={href}
               target={href.startsWith('http') ? '_blank' : undefined}
               rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-              className="footer-link font-mono text-[12px] text-site-muted no-underline transition-colors">
+              className="footer-link font-mono text-[12px] text-site-muted-hi no-underline transition-colors">
               {label}
             </a>
           ))}

@@ -14,6 +14,7 @@
 import fs   from 'fs';
 import path from 'path';
 import { getRemainingRequests, consumeRequest } from '@/lib/rateLimit';
+import { logAiExchange } from '@/lib/db';
 
 // Read once at module load — stays in memory for the process lifetime.
 // If the file is missing the module still loads, but requests will fail
@@ -147,12 +148,22 @@ export async function POST(request) {
     const remainingAfter = getRemainingRequests(ip);
 
     let reply;
+    let ollamaError = null;
     try {
       reply = await queryOllama(sanitised, remainingAfter, sessionRemaining);
     } catch (err) {
       console.error('[terminal] Ollama error:', err.message);
+      ollamaError = err.message;
       reply = 'cluster is having a moment — try again shortly.';
     }
+
+    logAiExchange({
+      ip,
+      userMessages: sanitised.filter(m => m.role === 'user').map(m => m.content),
+      aiReply: reply,
+      remainingQuota: remainingAfter,
+      error: ollamaError,
+    });
 
     return Response.json({ reply, remaining: remainingAfter });
 

@@ -1,0 +1,125 @@
+:root {
+  --bg:       #161a18;
+  --bg2:      #1c201e;
+  --bg3:      #222824;
+  --border:   rgba(255, 255, 255, 0.09);
+  --text:     #e2ede6;
+  --muted:    #7d9a88;
+  --muted-hi: #9fb9ac;
+  --green:    #3ddb72;
+  --amber:    #d4a84b;
+  --red:      #e05050;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+a { color: var(--green); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+nav .brand { color: var(--muted-hi); letter-spacing: 0.08em; font-size: 13px; }
+nav a { color: var(--muted-hi); font-size: 13px; }
+nav a.active, nav a:hover { color: var(--text); text-decoration: none; }
+nav .logout { margin-left: auto; color: var(--muted); cursor: pointer; background: none; border: none; font: inherit; font-size: 12px; }
+nav .logout:hover { color: var(--red); }
+
+main { max-width: 1200px; margin: 0 auto; padding: 28px; }
+
+h1 { font-size: 18px; font-weight: 500; margin-bottom: 20px; color: var(--text); }
+h2 { font-size: 13px; font-weight: 500; margin: 24px 0 12px; color: var(--muted-hi); text-transform: uppercase; letter-spacing: 0.1em; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px 18px;
+}
+.card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.card .value { font-size: 26px; color: var(--green); }
+.card .value.warn { color: var(--amber); }
+
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th {
+  text-align: left; padding: 8px 10px; color: var(--muted);
+  text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border);
+}
+td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--muted-hi); vertical-align: top; }
+td.reply { max-width: 420px; }
+td .expand { cursor: pointer; color: var(--green); font-size: 11px; }
+tr:hover td { background: rgba(255,255,255,0.015); }
+
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; font-size: 12px; }
+.bar-row .day { width: 90px; color: var(--muted); flex-shrink: 0; }
+.bar-row .bar { height: 14px; background: var(--green); opacity: 0.65; border-radius: 2px; min-width: 2px; }
+.bar-row .n { color: var(--muted-hi); }
+
+input[type="text"], input[type="password"], select {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font: inherit;
+  padding: 8px 12px;
+  outline: none;
+}
+input:focus, select:focus { border-color: var(--green); }
+
+button.btn {
+  background: var(--green);
+  color: var(--bg);
+  border: none;
+  border-radius: 5px;
+  padding: 9px 20px;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+button.btn:hover { opacity: 0.85; }
+button.ghost {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted-hi);
+  border-radius: 5px;
+  padding: 8px 16px;
+  font: inherit;
+  cursor: pointer;
+}
+button.ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+
+.controls { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+.muted { color: var(--muted); font-size: 12px; }
+.error-tag { color: var(--red); font-size: 11px; }
+
+/* login page */
+.login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+.login-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 36px;
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.login-box h1 { font-size: 15px; margin-bottom: 4px; }
+.login-box .sub { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+.login-error { color: var(--red); font-size: 12px; min-height: 16px; }
+

@@ -1,21 +1,42 @@
 name: portfolio-v3-staging
 
+# All host paths derive from one per-environment base directory, injected by
+# the deploy workflow from the PORTFOLIO_BASE_STAGING repository Variable —
+# nothing about the server's layout lives in this (public) file.
+# Expected layout under the base dir:
+#   .env                → runtime env for the main app (Ollama, Kuma, DB_PATH, salt)
+#   .env.admin          → admin panel env (password, session secret)
+#   system-prompt.txt   → folio-ai system prompt
+#   data/               → shared SQLite data dir
+# If the runner is containerized, mount the base dir into it at the SAME path
+# (env_file is read by the compose CLI; volumes are resolved by the host daemon).
+#
+# Optional: PORTFOLIO_PORT / ADMIN_PORT override host ports (default 3001/9001).
+# The :? modifier makes compose fail loudly if the base variable is missing.
+
 services:
   portfolio-v3-staging:
     container_name: portfolio-v3-staging
+    image: ghcr.io/elsing/portfolio:staging
     ports:
-      - 3001:3000
-    image: portfolio-v3-staging:latest
+      - "${PORTFOLIO_PORT:-3001}:3000"
     env_file:
-      - /opt/portfolio/env/.env.prod
+      - ${PORTFOLIO_BASE:?}/.env
     volumes:
-      - /opt/portfolio/env/system-prompt.txt:/app/system-prompt.txt:ro
-    networks:
-      traefik_proxy:
-        aliases:
-          - portfolio-v3-staging
+      - ${PORTFOLIO_BASE:?}/system-prompt.txt:/app/system-prompt.txt:ro
+      - ${PORTFOLIO_BASE:?}/data:/app/data
     restart: unless-stopped
 
-networks:
-  traefik_proxy:
-    external: true
+  admin:
+    container_name: portfolio-v3-admin-staging
+    image: ghcr.io/elsing/portfolio-admin:staging
+    env_file:
+      - ${PORTFOLIO_BASE:?}/.env.admin
+    volumes:
+      # rw, not :ro — the DB is in WAL mode and even readers must be able to
+      # write the -shm shared-memory file. Admin code itself only runs SELECTs.
+      - ${PORTFOLIO_BASE:?}/data:/app/data
+    ports:
+      # Different default to prod's 9000 (same Docker host).
+      - "${ADMIN_PORT:-9001}:9000"
+    restart: unless-stopped

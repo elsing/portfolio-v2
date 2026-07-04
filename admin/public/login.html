@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>admin — singer.systems</title>
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <form class="login-box" id="loginForm">
+      <h1>portfolio-admin</h1>
+      <div class="sub">internal only — singer.systems</div>
+      <input type="password" id="password" placeholder="password" autocomplete="current-password" autofocus>
+      <div class="login-error" id="error"></div>
+      <button class="btn" type="submit">log in →</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: document.getElementById('password').value }),
+      });
+      if (res.ok) { window.location.href = '/'; return; }
+      document.getElementById('error').textContent = 'wrong password';
+    });
+  </script>
+</body>
+</html>

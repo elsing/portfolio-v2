@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>ai logs — portfolio-admin</title>
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+  <nav>
+    <span class="brand">portfolio-admin</span>
+    <a href="/">stats</a>
+    <a href="/logs.html" class="active">ai logs</a>
+    <button class="logout" id="logout">log out</button>
+  </nav>
+
+  <main>
+    <h1>folio-ai prompt log</h1>
+
+    <div class="controls">
+      <input type="text" id="search" placeholder="search prompts &amp; replies…" style="width:320px">
+      <button class="ghost" id="prev">← prev</button>
+      <span class="muted" id="pageInfo"></span>
+      <button class="ghost" id="next">next →</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:150px">when</th>
+          <th style="width:80px">visitor</th>
+          <th>prompt</th>
+          <th>reply</th>
+          <th style="width:50px">quota</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+
+  <script>
+    let page = 0;
+    let total = 0;
+    const PAGE_SIZE = 25;
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      }[c]));
+    }
+
+    function fmtTs(ts) {
+      return new Date(ts).toLocaleString('en-GB', {
+        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+      });
+    }
+
+    async function load() {
+      const q = encodeURIComponent(document.getElementById('search').value);
+      const res = await fetch(`/api/logs?search=${q}&page=${page}`);
+      if (res.status === 401) { window.location.href = '/login.html'; return; }
+      const d = await res.json();
+      total = d.total;
+
+      document.getElementById('rows').innerHTML = d.rows.map(r => {
+        let prompts = [];
+        try { prompts = JSON.parse(r.user_messages); } catch {}
+        const reply = r.ai_reply.length > 220
+          ? `${esc(r.ai_reply.slice(0, 220))}… <span class="expand" data-full="${esc(r.ai_reply)}">[more]</span>`
+          : esc(r.ai_reply);
+        return `<tr>
+          <td>${fmtTs(r.ts)}${r.error ? '<br><span class="error-tag">ollama error</span>' : ''}</td>
+          <td title="${esc(r.ip_hash ?? '')}">${esc((r.ip_hash ?? '').slice(0, 8))}</td>
+          <td>${prompts.map(p => esc(p)).join('<br>')}</td>
+          <td class="reply">${reply}</td>
+          <td>${r.remaining_quota ?? ''}</td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="5" class="muted">no logs yet</td></tr>';
+
+      const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      document.getElementById('pageInfo').textContent = `page ${page + 1} / ${pages} — ${total} total`;
+    }
+
+    document.getElementById('rows').addEventListener('click', e => {
+      const el = e.target.closest('.expand');
+      if (el) el.parentElement.textContent = el.dataset.full;
+    });
+
+    let searchTimer;
+    document.getElementById('search').addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => { page = 0; load(); }, 300);
+    });
+    document.getElementById('prev').addEventListener('click', () => { if (page > 0) { page--; load(); } });
+    document.getElementById('next').addEventListener('click', () => {
+      if ((page + 1) * PAGE_SIZE < total) { page++; load(); }
+    });
+    document.getElementById('logout').addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/login.html';
+    });
+
+    load();
+  </script>
+</body>
+</html>

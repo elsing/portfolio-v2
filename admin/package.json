@@ -1,0 +1,15 @@
+{
+  "name": "portfolio-admin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Internal-only admin panel for singer.systems — AI prompt logs, usage stats, click heatmap. Never attach to traefik_proxy.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "cookie-session": "^2.1.1",
+    "express": "^5.2.1"
+  }
+}

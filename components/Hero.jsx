@@ -4,14 +4,13 @@ import Link            from 'next/link';
 import TerminalCard    from '@/components/TerminalCard';
 import { useTerminal } from '@/components/TerminalContext';
 
-const PRO_BADGES = [
-  { label: 'devops / infra engineer', style: 'green' },
-];
-
-const PERSONALITY_BADGES = [
-  { label: 'motorbiker',              icon: true,    colour: '#f472b6' },
-  { label: 'golden retriever energy',                colour: '#fbbf24' },
-  { label: 'troubleshooter',                         colour: '#38bdf8' },
+const BADGES = [
+  { label: 'devops / infra engineer',  icon: 'server',   colour: '#3ddb72' },
+  { label: 'linux lover',              icon: 'terminal', colour: '#38bdf8' },
+  { label: 'proxmox connoisseur',      icon: 'monitor',  colour: '#a78bfa' },
+  { label: 'troubleshooter',           icon: 'wrench',   colour: '#4ade80' },
+  { label: 'docker evangelist',        icon: 'package',  colour: '#5b9fd4' },
+  { label: 'ceph enjoyer',             icon: 'database', colour: '#e05050' },
 ];
 
 const GHOST_LINKS = [
@@ -20,37 +19,101 @@ const GHOST_LINKS = [
   { href: 'https://linkedin.com/in/elliotsinger', label: 'linkedin', external: true },
 ];
 
-const BADGE_VARIANTS = {
-  green: 'text-site-green border-site-green/30 bg-site-green/5',
-  amber: 'text-site-amber border-site-amber/25 bg-site-amber/5',
-  dim:   'text-site-muted-hi border-white/10 bg-transparent',
-};
+function BadgeIcon({ icon, colour }) {
+  if (icon === 'moto') {
+    return (
+      <svg width="18" height="11" viewBox="0 0 32 18" fill="none" aria-hidden="true">
+        <circle cx="5.5"  cy="13.5" r="3.5" stroke={colour} strokeWidth="1.4" />
+        <circle cx="26.5" cy="13.5" r="3.5" stroke={colour} strokeWidth="1.4" />
+        <path d="M9 13.5 L13 7 L20 7 L24 5 L23 9 L26.5 10" stroke={colour} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M13 7 L12 10 L22 10 L23 9"               stroke={colour} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M18 7 L19 4 L22 4 L21 7"                 stroke={colour} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
 
-function Badge({ label, variant = 'dim' }) {
-  return (
-    <span className={`inline-flex items-center gap-1.5 font-mono text-[13px] tracking-[0.04em] px-3 py-[5px] rounded border ${BADGE_VARIANTS[variant]}`}>
-      {label}
-    </span>
-  );
+  const common = { width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none', stroke: colour, strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true };
+
+  switch (icon) {
+    case 'terminal':
+      return (
+        <svg {...common}>
+          <polyline points="4 17 10 11 4 5" />
+          <line x1="12" y1="19" x2="20" y2="19" />
+        </svg>
+      );
+    case 'server':
+      return (
+        <svg {...common}>
+          <rect x="2" y="3" width="20" height="7" rx="1.5" />
+          <rect x="2" y="14" width="20" height="7" rx="1.5" />
+          <line x1="6" y1="6.5" x2="6.01" y2="6.5" />
+          <line x1="6" y1="17.5" x2="6.01" y2="17.5" />
+        </svg>
+      );
+    case 'wrench':
+      return (
+        <svg {...common}>
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z" />
+        </svg>
+      );
+    case 'monitor':
+      return (
+        <svg {...common}>
+          <rect x="2" y="4" width="20" height="13" rx="1.5" />
+          <line x1="8" y1="21" x2="16" y2="21" />
+          <line x1="12" y1="17" x2="12" y2="21" />
+        </svg>
+      );
+    case 'package':
+      return (
+        <svg {...common}>
+          <path d="M12 2L2 7v10l10 5 10-5V7z" />
+          <path d="M2 7l10 5 10-5" />
+          <path d="M12 22V12" />
+        </svg>
+      );
+    case 'activity':
+      return (
+        <svg {...common}>
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+      );
+    case 'database':
+      return (
+        <svg {...common}>
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+        </svg>
+      );
+    case 'gear':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+        </svg>
+      );
+    case 'zap':
+      return (
+        <svg {...common} fill={colour} stroke="none">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        </svg>
+      );
+    default:
+      return null;
+  }
 }
 
-function PersonalityBadge({ label, icon, colour }) {
+function Badge({ label, icon, colour }) {
   const style = {
-    color:       colour,
-    borderColor: `${colour}40`,
-    background:  `${colour}0d`,
+    color:       '#e2ede6',
+    borderColor: `${colour}55`,
+    background:  `${colour}26`,
   };
   return (
-    <span className="inline-flex items-center gap-1.5 font-mono text-[13px] tracking-[0.04em] px-3 py-[5px] rounded border" style={style}>
-      {icon && (
-        <svg width="18" height="11" viewBox="0 0 32 18" fill="none" aria-hidden="true">
-          <circle cx="5.5"  cy="13.5" r="3.5" stroke={colour} strokeWidth="1.4" />
-          <circle cx="26.5" cy="13.5" r="3.5" stroke={colour} strokeWidth="1.4" />
-          <path d="M9 13.5 L13 7 L20 7 L24 5 L23 9 L26.5 10" stroke={colour} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M13 7 L12 10 L22 10 L23 9"               stroke={colour} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M18 7 L19 4 L22 4 L21 7"                 stroke={colour} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )}
+    <span className="inline-flex items-center gap-1.5 font-mono text-[12px] tracking-[0.04em] px-2.5 py-[4.5px] rounded border" style={style}>
+      <BadgeIcon icon={icon} colour={colour} />
       {label}
     </span>
   );
@@ -66,33 +129,27 @@ export default function Hero() {
 
           <div className="flex items-center gap-3 font-mono text-[13px] text-site-muted-hi tracking-[0.1em] mb-7 justify-center xl:justify-start">
             <span className="hidden xl:inline-block w-5 h-px bg-site-muted-hi" />
-            it engineer &amp; self-hoster
+            IT engineer &amp; self-hosting enthusiast
           </div>
 
           <h1
             className="font-mono font-medium text-white leading-[1.05] tracking-[-0.025em] mb-7"
-            style={{ fontSize: 'clamp(40px, 6vw, 72px)' }}
+            style={{ fontSize: 'clamp(28px, 3.4vw, 42px)' }}
           >
             Elliot Singer
             <span
               className="cursor-blink inline-block bg-site-green ml-1 align-bottom"
-              style={{ width: '4px', height: 'clamp(36px, 5.5vw, 66px)' }}
+              style={{ width: '3px', height: 'clamp(24px, 3.2vw, 38px)' }}
             />
           </h1>
 
-          <div className="flex flex-wrap gap-2 mb-2.5 justify-center xl:justify-start">
-            {PRO_BADGES.map(({ label, style }) => (
-              <Badge key={label} label={label} variant={style} />
+          <div className="flex flex-wrap gap-2 mb-8 justify-center xl:justify-start max-w-[560px]">
+            {BADGES.map(({ label, icon, colour }) => (
+              <Badge key={label} label={label} icon={icon} colour={colour} />
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2 mb-8 justify-center xl:justify-start">
-            {PERSONALITY_BADGES.map(({ label, icon, colour }) => (
-              <PersonalityBadge key={label} label={label} icon={icon} colour={colour} />
-            ))}
-          </div>
-
-          <p className="text-[18px] text-site-muted-hi leading-[1.85] font-light max-w-[500px] mx-auto xl:mx-0 mb-9">
+          <p className="text-[18px] text-site-muted-hi leading-[1.85] font-light max-w-[560px] mx-auto xl:mx-0 mb-9">
             Building and breaking things since before it was my job title.
             {' '}
             <em className="text-site-text not-italic">Passionate, curious, and someone who genuinely enjoys the people side as much as the technical</em>
@@ -119,7 +176,7 @@ export default function Hero() {
         </div>
 
         {/* ── Right: terminal ───────────────────────────── */}
-        <div className="relative z-10 min-w-0 pt-0 pb-10 xl:py-16">
+        <div className="relative z-10 min-w-0 pb-8 xl:pb-10">
           <TerminalCard />
         </div>
 

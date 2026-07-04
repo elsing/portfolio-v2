@@ -1,8 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --breakpoint-xs: 400px; /* status text visible above 400px */
+
+  --color-bg:           #161a18;
+  --color-bg2:          #1c201e;
+  --color-bg3:          #222824;
+  --color-site-green:   #3ddb72;
+  --color-site-amber:   #d4a84b;
+  --color-site-blue:    #5b9fd4;
+  --color-site-text:    #e2ede6;
+  --color-site-muted:   #4f6359;
+  --color-site-muted-hi: #9fb9ac;
+  --color-site-red:     #e05050;
+
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'DM Sans', sans-serif;
+
+  --spacing-18: 4.5rem;
+}
 
 :root {
   --bg:          #161a18;
@@ -13,7 +32,7 @@
   --border-mid:  rgba(255, 255, 255, 0.12);
   --text:        #e2ede6;
   --muted:       #4f6359;
-  --muted-hi:    #7d9a88;
+  --muted-hi:    #9fb9ac;
   --green:       #3ddb72;
   --amber:       #d4a84b;
   --blue:        #5b9fd4;

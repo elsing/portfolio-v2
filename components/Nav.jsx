@@ -48,7 +48,7 @@ export default function Nav() {
             <Link
               href={href}
               className={`
-                block text-[12px] text-site-muted tracking-[0.04em]
+                block text-[12px] text-site-muted-hi tracking-[0.04em]
                 px-3 sm:px-4 py-1
                 border-r border-white/[0.07]
                 no-underline transition-colors duration-150 hover:text-site-text
